@@ -1133,3 +1133,178 @@
   background-position: top center;
   background-size: cover;
 }
+
+/* ---------- Quiénes somos ---------- */
+
+/* Editor de código en la portada: el sueño escrito como programa */
+.aw-code {
+  font-family: "SF Mono", "Cascadia Mono", Consolas, monospace;
+  font-size: 0.74rem;
+  line-height: 1.9;
+}
+
+.aw-code p {
+  margin: 0;
+  padding-left: 30px;
+  text-indent: -30px;
+  white-space: pre-wrap;
+}
+
+.aw-code p::before {
+  display: inline-block;
+  width: 30px;
+  color: #4d5f77;
+  text-indent: 0;
+  content: attr(data-l);
+}
+
+.aw-code .k { color: #b39cff; }
+.aw-code .s { color: #7ee6c8; }
+.aw-code .c { color: #6f829a; }
+.aw-code .f { color: #83d8ff; }
+
+.aw-code .aw-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: #83d8ff;
+  animation: aw-parpadeo 1.1s steps(1) infinite;
+}
+
+@keyframes aw-parpadeo {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-code .aw-cursor {
+    animation: none;
+  }
+}
+
+/* Línea de tiempo de la trayectoria */
+.aw-timeline {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: etapa;
+}
+
+.aw-timeline::before {
+  position: absolute;
+  top: 22px;
+  bottom: 22px;
+  left: 21px;
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(110, 200, 255, 0.5), rgba(102, 92, 246, 0.25));
+  content: "";
+}
+
+.aw-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 20px;
+  counter-increment: etapa;
+}
+
+.aw-timeline li::before {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(116, 210, 255, 0.35);
+  border-radius: 14px;
+  background: #0b1426;
+  color: #70d2ff;
+  font-size: 0.72rem;
+  font-weight: 750;
+  content: "0" counter(etapa);
+}
+
+.aw-timeline .mg-glass-card {
+  min-height: 0;
+}
+
+.aw-timeline .mg-glass-card > span {
+  color: #6ed3ff;
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.aw-timeline .mg-glass-card h3 {
+  margin-top: 8px;
+  font-size: 1.3rem;
+}
+
+.aw-timeline li.is-now::before {
+  border: 0;
+  background: linear-gradient(135deg, #248df8, #665cf6);
+  color: #fff;
+  box-shadow: 0 0 0 6px rgba(58, 162, 255, 0.12);
+}
+
+/* Carta del fundador */
+.aw-letter {
+  position: relative;
+}
+
+.aw-letter blockquote {
+  font-size: clamp(1.4rem, 5vw, 2.6rem);
+}
+
+.aw-sign {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.aw-sign img {
+  width: 54px;
+  height: 54px;
+  padding: 6px;
+  border: 1px solid rgba(186, 220, 255, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  object-fit: contain;
+}
+
+.aw-sign strong {
+  display: block;
+  color: #fff;
+}
+
+.aw-sign small {
+  color: #8ea3bc;
+  font-size: 0.74rem;
+}
+
+.aw-sign .aw-hand {
+  margin-left: auto;
+  color: #cfe9ff;
+  font-family: "Caveat", "Segoe Print", cursive;
+  font-size: 1.9rem;
+  transform: rotate(-4deg);
+}
+
+@media (max-width: 600px) {
+  .aw-sign .aw-hand {
+    display: none;
+  }
+}
+
+@media (min-width: 980px) {
+  .aw-sticky {
+    position: sticky;
+    top: 120px;
+  }
+}
