@@ -56,6 +56,73 @@ const ICON_SPRITE = `
     <path d="M12 3 4.5 6v5.5c0 4.5 3 7.7 7.5 9.5 4.5-1.8 7.5-5 7.5-9.5V6L12 3Z" fill="none" stroke="currentColor" stroke-width="1.7"/>
     <path d="m8.5 12 2.2 2.2 4.8-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
+  <symbol id="monitor" viewBox="0 0 24 24">
+    <rect x="3" y="4" width="18" height="12.5" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M8.5 20h7M12 16.5V20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="search" viewBox="0 0 24 24">
+    <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="cart" viewBox="0 0 24 24">
+    <path d="M3 4h2.2l2.1 10.2a1.6 1.6 0 0 0 1.6 1.3h8.4a1.6 1.6 0 0 0 1.6-1.2L20.5 8H6.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="9.5" cy="19.5" r="1.3" fill="currentColor"/><circle cx="17" cy="19.5" r="1.3" fill="currentColor"/>
+  </symbol>
+  <symbol id="megaphone" viewBox="0 0 24 24">
+    <path d="M4 10v4a1 1 0 0 0 1 1h2l8 4.5V4.5L7 9H5a1 1 0 0 0-1 1Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M18.5 9.5a3.5 3.5 0 0 1 0 5M8 15l1.2 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="layers" viewBox="0 0 24 24">
+    <path d="m12 3 9 5-9 5-9-5 9-5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="m3 12.5 9 5 9-5M3 16.5l9 5 9-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="chevron" viewBox="0 0 24 24">
+    <path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="bolt" viewBox="0 0 24 24">
+    <path d="M13 2.5 4.5 13.5H12l-1 8 8.5-11H12l1-8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="tag" viewBox="0 0 24 24">
+    <path d="M3.5 12.3V4.5a1 1 0 0 1 1-1h7.8l8.2 8.2a1.4 1.4 0 0 1 0 2l-6.8 6.8a1.4 1.4 0 0 1-2 0l-8.2-8.2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+  </symbol>
+  <symbol id="phone" viewBox="0 0 24 24">
+    <rect x="6.5" y="2.5" width="11" height="19" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M10.5 18.5h3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="pencil" viewBox="0 0 24 24">
+    <path d="m15 5 4 4L8.5 19.5H4.5v-4L15 5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="m13 7 4 4" fill="none" stroke="currentColor" stroke-width="1.7"/>
+  </symbol>
+  <symbol id="refresh" viewBox="0 0 24 24">
+    <path d="M20 11a8 8 0 0 0-14.5-4.5M4 13a8 8 0 0 0 14.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M5 3v4h4M19 21v-4h-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="calendar" viewBox="0 0 24 24">
+    <rect x="3.5" y="5" width="17" height="15.5" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="wrench" viewBox="0 0 24 24">
+    <path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 1-2-2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M14.5 6.5 17 4l3 3-2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="chart" viewBox="0 0 24 24">
+    <path d="M4 20h16M7 16v-4M11.5 16V8M16 16v-6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="heart" viewBox="0 0 24 24">
+    <path d="M12 20s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="users" viewBox="0 0 24 24">
+    <circle cx="9" cy="8.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M3.5 19.5a5.5 5.5 0 0 1 11 0M16 5.6a3.2 3.2 0 0 1 0 5.8M17.5 14.3a5.5 5.5 0 0 1 3 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="compass" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="hand-arrow" viewBox="0 0 48 40">
+    <path d="M40 4C36 18 24 28 8 30M8 30l7-7M8 30l9 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
 `;
 
 const iconMarkup = (name) =>
@@ -405,5 +472,44 @@ document.querySelectorAll("[data-year]").forEach((element) => {
       if (!item.open) return;
       group.querySelectorAll("details").forEach((other) => { if (other !== item) other.open = false; });
     }));
+  });
+})();
+
+;
+(() => {
+  // Menú "Servicios": se abre con clic (y con hover en computadora),
+  // se cierra con Escape o al hacer clic fuera.
+  const groups = [...document.querySelectorAll(".nav-group")];
+  if (!groups.length) return;
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const isDesktop = () => window.innerWidth > 820;
+
+  const setOpen = (group, open) => {
+    group.classList.toggle("is-open", open);
+    group.querySelector(".nav-drop")?.setAttribute("aria-expanded", String(open));
+  };
+
+  groups.forEach((group) => {
+    const button = group.querySelector(".nav-drop");
+    if (group.querySelector(`[data-nav="${pageName}"]`)) group.classList.add("is-active");
+
+    button?.addEventListener("click", () => setOpen(group, !group.classList.contains("is-open")));
+    group.addEventListener("mouseenter", () => { if (canHover.matches && isDesktop()) setOpen(group, true); });
+    group.addEventListener("mouseleave", () => { if (canHover.matches && isDesktop()) setOpen(group, false); });
+    group.addEventListener("focusout", (event) => {
+      if (isDesktop() && !group.contains(event.relatedTarget)) setOpen(group, false);
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    groups.forEach((group) => { if (isDesktop() && !group.contains(event.target)) setOpen(group, false); });
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    groups.forEach((group) => {
+      if (!group.classList.contains("is-open")) return;
+      setOpen(group, false);
+      group.querySelector(".nav-drop")?.focus();
+    });
   });
 })();

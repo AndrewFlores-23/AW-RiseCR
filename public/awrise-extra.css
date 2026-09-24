@@ -1,0 +1,1084 @@
+/*
+  AW-RiseCR · detalles v7.1
+  Se carga después de awrise-performance-v4.css. No cambia el estilo base:
+  agrega el menú de servicios, la grilla de servicios, tarjetas flotantes,
+  nota a mano y las piezas de las páginas de servicio nuevas.
+*/
+
+/* ---------- Menú: Servicios desplegable ---------- */
+
+.nav-group {
+  position: relative;
+}
+
+.nav-drop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #aab8ca;
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+.nav-drop:hover,
+.nav-drop[aria-expanded="true"],
+.nav-group.is-active .nav-drop {
+  color: #fff;
+}
+
+.nav-drop svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 200ms ease;
+}
+
+.nav-drop[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.nav-menu {
+  position: absolute;
+  top: calc(100% + 24px);
+  left: 50%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  width: 580px;
+  padding: 10px;
+  border: 1px solid rgba(177, 218, 255, 0.14);
+  border-radius: 24px;
+  background: rgba(7, 14, 28, 0.96);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), inset 0 1px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(28px) saturate(1.3);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -8px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.nav-menu::before {
+  position: absolute;
+  top: -24px;
+  right: 0;
+  left: 0;
+  height: 24px;
+  content: "";
+}
+
+.nav-group.is-open .nav-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.mg-header .site-nav .nav-menu a {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 2px 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  color: #eaf5ff;
+  font-size: 0.86rem;
+}
+
+.site-nav .nav-menu a::after {
+  display: none;
+}
+
+.mg-header .site-nav .nav-menu a:hover,
+.mg-header .site-nav .nav-menu a.is-active {
+  background: rgba(70, 156, 255, 0.1);
+}
+
+.nav-menu a > span {
+  display: grid;
+  grid-row: span 2;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(180, 224, 255, 0.16);
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgba(78, 182, 255, 0.19), rgba(100, 77, 255, 0.12));
+  color: #83d8ff;
+}
+
+.nav-menu svg {
+  width: 19px;
+  height: 19px;
+}
+
+.nav-menu strong {
+  font-weight: 650;
+}
+
+.nav-menu small {
+  color: #7f93ab;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.nav-menu .nav-menu-product {
+  grid-column: 1 / -1;
+  border-top: 1px solid rgba(186, 220, 255, 0.1);
+  border-radius: 0 0 16px 16px;
+}
+
+@media (max-width: 820px) {
+  .nav-group {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-drop {
+    width: 100%;
+    justify-content: space-between;
+    padding: 18px 4px;
+    color: #fff;
+    font-size: 1.05rem;
+  }
+
+  .nav-menu {
+    position: static;
+    display: none;
+    grid-template-columns: 1fr;
+    width: auto;
+    margin: 0 0 12px;
+    padding: 4px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: none;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .nav-menu::before {
+    display: none;
+  }
+
+  .nav-group.is-open .nav-menu {
+    display: grid;
+    transform: none;
+  }
+
+  .mg-header .site-nav .nav-menu a {
+    padding: 10px;
+    border-bottom: 0;
+    font-size: 0.95rem;
+  }
+
+  .nav-menu .nav-menu-product {
+    border-radius: 16px;
+  }
+}
+
+/* ---------- Tarjetas flotantes (detalle de la referencia) ---------- */
+
+.aw-chip {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px 10px 10px;
+  border: 1px solid rgba(195, 228, 255, 0.2);
+  border-radius: 17px;
+  background: rgba(12, 24, 46, 0.78);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.14), 0 18px 44px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px) saturate(1.3);
+  animation: aw-flota 6s ease-in-out infinite;
+}
+
+.aw-chip:nth-of-type(2n) {
+  animation-delay: -3s;
+}
+
+.aw-chip > i {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(180, 224, 255, 0.16);
+  border-radius: 11px;
+  background: linear-gradient(145deg, rgba(78, 182, 255, 0.22), rgba(100, 77, 255, 0.14));
+  color: #83d8ff;
+  font-style: normal;
+}
+
+.aw-chip > i.is-whatsapp {
+  background: rgba(37, 211, 102, 0.14);
+  color: #4fe08a;
+}
+
+.aw-chip svg {
+  width: 17px;
+  height: 17px;
+}
+
+.aw-chip b {
+  display: block;
+  color: #f4f8ff;
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+
+.aw-chip small {
+  display: block;
+  color: #8ea3bc;
+  font-size: 0.64rem;
+  line-height: 1.3;
+}
+
+.aw-chip .aw-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 22px;
+  margin-left: 2px;
+}
+
+.aw-chip .aw-bars span {
+  width: 5px;
+  border-radius: 2px;
+  background: linear-gradient(to top, #3aa2ff, #83d8ff);
+}
+
+.aw-chip .aw-bars span:nth-child(1) { height: 30%; }
+.aw-chip .aw-bars span:nth-child(2) { height: 50%; }
+.aw-chip .aw-bars span:nth-child(3) { height: 70%; }
+.aw-chip .aw-bars span:nth-child(4) { height: 100%; }
+
+.aw-chip.is-tl { top: 10%; left: 0; }
+.aw-chip.is-tr { top: 16%; right: 0; }
+.aw-chip.is-ml { top: 48%; left: -2%; }
+.aw-chip.is-bl { bottom: 14%; left: 2%; }
+.aw-chip.is-br { right: 0; bottom: 20%; }
+
+@keyframes aw-flota {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-chip {
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .aw-chip {
+    padding: 8px 11px 8px 8px;
+  }
+
+  .aw-chip > i {
+    width: 28px;
+    height: 28px;
+  }
+
+  .aw-chip small {
+    display: none;
+  }
+}
+
+/* Nota escrita a mano */
+.aw-note {
+  position: absolute;
+  z-index: 5;
+  top: 2%;
+  right: 4%;
+  margin: 0;
+  color: #cfe9ff;
+  font-family: "Caveat", "Segoe Print", cursive;
+  font-size: 1.7rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  transform: rotate(6deg);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+}
+
+.aw-note svg {
+  width: 52px;
+  height: 44px;
+  margin: 4px 0 0 20px;
+  color: #6ec8ff;
+}
+
+@media (max-width: 600px) {
+  .aw-note {
+    font-size: 1.3rem;
+  }
+
+  .aw-note svg {
+    display: none;
+  }
+}
+
+/* ---------- Portada: servicios categorizados ---------- */
+
+.aw-services {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 700px) {
+  .aw-services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1050px) {
+  .aw-services {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.aw-service {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  padding: 26px;
+  overflow: hidden;
+  border: 1px solid var(--mg-line);
+  border-radius: 28px;
+  background: radial-gradient(circle at 100% 0, var(--service-glow, rgba(54, 137, 255, 0.18)), transparent 48%), var(--mg-panel);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.09), 0 24px 70px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(22px);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.aw-service:hover {
+  border-color: var(--mg-line-bright);
+  transform: translateY(-6px);
+}
+
+.aw-service .mg-card-icon {
+  margin-bottom: 24px;
+}
+
+.aw-service h3 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 1.45rem;
+}
+
+.aw-service p {
+  flex: 1;
+  margin: 0 0 22px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.aw-service-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(186, 220, 255, 0.1);
+}
+
+.aw-price {
+  color: #7f93ab;
+  font-size: 0.7rem;
+}
+
+.aw-price b {
+  display: block;
+  color: #fff;
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.aw-service-foot > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #8fddff;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.aw-service-foot b.aw-go {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(185, 224, 255, 0.18);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.aw-service:hover b.aw-go {
+  background: linear-gradient(135deg, #248df8, #665cf6);
+  color: #fff;
+}
+
+.aw-service-web { --service-glow: rgba(54, 137, 255, 0.22); }
+.aw-service-seo { --service-glow: rgba(68, 235, 204, 0.16); }
+.aw-service-shop { --service-glow: rgba(140, 123, 255, 0.2); }
+.aw-service-social { --service-glow: rgba(255, 120, 190, 0.14); }
+.aw-service-soft { --service-glow: rgba(82, 245, 221, 0.14); }
+
+/* Tarjeta "no sé cuál necesito" */
+.aw-service-guide {
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+}
+
+.aw-service-guide .mg-card-icon {
+  background: transparent;
+}
+
+/* ---------- Franja de producto propio ---------- */
+
+.aw-product {
+  position: relative;
+  display: grid;
+  gap: 30px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 30px;
+  overflow: hidden;
+  border: 1px solid rgba(104, 222, 255, 0.28);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(68, 224, 203, 0.18), transparent 45%),
+    radial-gradient(circle at 100% 100%, rgba(100, 77, 255, 0.22), transparent 50%),
+    rgba(12, 22, 42, 0.86);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.12), 0 38px 100px rgba(0, 0, 0, 0.35);
+}
+
+.aw-product-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+}
+
+.aw-product-art img {
+  width: min(210px, 60%);
+  height: auto;
+  filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.5));
+}
+
+.aw-product-art .aw-chip.is-tr { top: 8%; right: 2%; }
+.aw-product-art .aw-chip.is-bl { bottom: 8%; left: 2%; }
+
+.aw-product h3 {
+  margin: 12px 0 10px;
+  color: #fff;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.05;
+}
+
+.aw-product p {
+  max-width: 520px;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.aw-product .button-row {
+  margin-top: 24px;
+}
+
+.aw-product .aw-price {
+  align-self: center;
+}
+
+@media (min-width: 900px) {
+  .aw-product {
+    grid-template-columns: 300px 1fr;
+    padding: 20px 44px 20px 20px;
+  }
+}
+
+/* ---------- Por qué AW-RiseCR ---------- */
+
+.aw-why {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 700px) {
+  .aw-why {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1050px) {
+  .aw-why {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.aw-why .mg-glass-card {
+  min-height: 0;
+}
+
+.aw-why .mg-glass-card h3 {
+  font-size: 1.2rem;
+}
+
+/* ---------- Páginas de servicio ---------- */
+
+.aw-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 0;
+  color: #7f93ab;
+  font-size: 0.74rem;
+  list-style: none;
+}
+
+.aw-crumbs li + li::before {
+  margin-right: 8px;
+  color: #4d5f77;
+  content: "/";
+}
+
+.aw-crumbs a:hover {
+  color: #fff;
+}
+
+/* Arte de portada: pantallas de cristal sobre el fondo de ondas */
+.aw-art {
+  position: relative;
+  display: grid;
+  min-height: 520px;
+  place-items: center;
+}
+
+.aw-art::before {
+  position: absolute;
+  inset: 6% 0;
+  z-index: 0;
+  border-radius: 36px;
+  background: url("glass-hero-bg-v2-optimized.webp") 70% 60% / cover;
+  opacity: 0.85;
+  mask-image: radial-gradient(ellipse at 60% 55%, #000 45%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse at 60% 55%, #000 45%, transparent 78%);
+  content: "";
+}
+
+.aw-screen {
+  position: relative;
+  z-index: 2;
+  width: min(390px, 88%);
+  padding: 16px;
+  border: 1px solid rgba(195, 228, 255, 0.2);
+  border-radius: 24px;
+  background: rgba(10, 20, 40, 0.72);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.14), 0 40px 90px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(22px) saturate(1.3);
+  color: #eaf5ff;
+  font-size: 0.78rem;
+}
+
+.aw-screen-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.aw-screen-bar i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(186, 220, 255, 0.2);
+}
+
+.aw-screen-bar span {
+  flex: 1;
+  margin-left: 8px;
+  padding: 5px 10px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #8ea3bc;
+  font-size: 0.66rem;
+}
+
+/* SEO: resultados de búsqueda */
+.aw-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(186, 220, 255, 0.14);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.aw-search svg {
+  width: 15px;
+  height: 15px;
+  color: #8ea3bc;
+}
+
+.aw-result {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+}
+
+.aw-result.is-first {
+  border: 1px solid rgba(110, 200, 255, 0.4);
+  background: linear-gradient(135deg, rgba(58, 162, 255, 0.16), rgba(100, 77, 255, 0.1));
+}
+
+.aw-result small {
+  display: block;
+  color: #8ea3bc;
+  font-size: 0.62rem;
+}
+
+.aw-result strong {
+  display: block;
+  margin: 2px 0;
+  color: #8fd3ff;
+  font-size: 0.86rem;
+}
+
+.aw-result em {
+  color: #ffd17c;
+  font-size: 0.66rem;
+  font-style: normal;
+  letter-spacing: 1px;
+}
+
+.aw-result.is-ghost i {
+  display: block;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 4px;
+  background: rgba(186, 220, 255, 0.12);
+}
+
+.aw-result.is-ghost i:first-child {
+  width: 40%;
+}
+
+.aw-result.is-ghost i:last-child {
+  width: 75%;
+}
+
+.aw-map {
+  position: relative;
+  height: 90px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 16px;
+  background:
+    linear-gradient(115deg, transparent 46%, rgba(186, 220, 255, 0.12) 47% 49%, transparent 50%),
+    linear-gradient(25deg, transparent 58%, rgba(186, 220, 255, 0.1) 59% 61%, transparent 62%),
+    radial-gradient(circle at 30% 70%, rgba(68, 235, 204, 0.14), transparent 30%),
+    rgba(255, 255, 255, 0.04);
+}
+
+.aw-map svg {
+  position: absolute;
+  top: 26%;
+  left: 56%;
+  width: 26px;
+  height: 26px;
+  color: #6ec8ff;
+  filter: drop-shadow(0 6px 12px rgba(58, 162, 255, 0.5));
+}
+
+/* Tienda: producto + carrito */
+.aw-shop {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.aw-product-tile {
+  padding: 8px;
+  border: 1px solid rgba(186, 220, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aw-product-tile i {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 11px;
+  background: linear-gradient(150deg, #3aa2ff, #665cf6);
+}
+
+.aw-product-tile:nth-child(2) i {
+  background: linear-gradient(150deg, #52f5dd, #1683ff);
+}
+
+.aw-product-tile:nth-child(3) i {
+  background: linear-gradient(150deg, #8c7bff, #ff78be);
+}
+
+.aw-product-tile:nth-child(4) i {
+  background: linear-gradient(150deg, #ffd17c, #ff8a3d);
+}
+
+.aw-product-tile b {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.72rem;
+}
+
+.aw-product-tile span {
+  display: flex;
+  justify-content: space-between;
+  color: #8ea3bc;
+  font-size: 0.66rem;
+}
+
+.aw-product-tile span em {
+  padding: 0 7px;
+  border-radius: 99px;
+  background: linear-gradient(135deg, #248df8, #665cf6);
+  color: #fff;
+  font-style: normal;
+}
+
+/* Redes: post + calendario */
+.aw-post i {
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 70% 30%, rgba(255, 209, 124, 0.6), transparent 30%),
+    linear-gradient(150deg, #665cf6, #1683ff 60%, #52f5dd);
+}
+
+.aw-post-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  color: #8ea3bc;
+  font-size: 0.72rem;
+}
+
+.aw-post-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.aw-post-meta svg {
+  width: 14px;
+  height: 14px;
+}
+
+.aw-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(186, 220, 255, 0.1);
+  text-align: center;
+}
+
+.aw-week small {
+  color: #6f829a;
+  font-size: 0.6rem;
+}
+
+.aw-week i {
+  aspect-ratio: 1;
+  border: 1px dashed rgba(186, 220, 255, 0.2);
+  border-radius: 7px;
+}
+
+.aw-week i.is-on {
+  border: 0;
+  background: linear-gradient(135deg, #248df8, #665cf6);
+}
+
+/* Software: tabla con estados */
+.aw-table > div {
+  display: grid;
+  grid-template-columns: 1fr 40px 96px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 6px;
+}
+
+.aw-table > div + div {
+  border-top: 1px solid rgba(186, 220, 255, 0.08);
+}
+
+.aw-table .is-head {
+  color: #6f829a;
+  font-size: 0.64rem;
+}
+
+.aw-table em {
+  font-style: normal;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.aw-status {
+  justify-self: start;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 0.62rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.aw-status.is-ok {
+  border: 1px solid rgba(79, 224, 138, 0.4);
+  color: #7ee6a5;
+}
+
+.aw-status.is-low {
+  border: 1px dashed rgba(255, 209, 124, 0.55);
+  color: #ffd17c;
+}
+
+.aw-status.is-out {
+  border: 1px solid rgba(255, 120, 120, 0.45);
+  color: #ff9a9a;
+}
+
+/* Tipos de servicio con precio */
+.aw-variants {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 700px) {
+  .aw-variants {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1050px) {
+  .aw-variants {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.aw-variants .mg-glass-card {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.aw-variants .mg-glass-card h3 {
+  font-size: 1.25rem;
+}
+
+.aw-variants .mg-glass-card p {
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.aw-variant-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(186, 220, 255, 0.1);
+}
+
+.aw-variant-foot a {
+  color: #8fddff;
+  font-size: 0.74rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* Cruces: "¿Necesitas...?" */
+.aw-cross {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+@media (min-width: 800px) {
+  .aw-cross {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.aw-cross a {
+  display: grid;
+  grid-template-columns: 46px 1fr 40px;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 22px;
+  border: 1px solid rgba(104, 222, 255, 0.22);
+  border-radius: 24px;
+  background: linear-gradient(120deg, rgba(36, 141, 248, 0.14), rgba(102, 92, 246, 0.08)), var(--mg-panel);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.aw-cross a:hover {
+  border-color: var(--mg-line-bright);
+  transform: translateY(-3px);
+}
+
+.aw-cross .mg-card-icon {
+  width: 46px;
+  height: 46px;
+  margin: 0;
+}
+
+.aw-cross strong {
+  display: block;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.aw-cross small {
+  display: block;
+  color: #8ea3bc;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.aw-cross b {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid rgba(185, 224, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #8fddff;
+}
+
+/* Beneficios en dos columnas con ilustración */
+.aw-features {
+  display: grid;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 980px) {
+  .aw-features {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 64px;
+  }
+}
+
+.aw-feature-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(186, 220, 255, 0.1);
+  list-style: none;
+}
+
+.aw-feature-list li {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 18px;
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(186, 220, 255, 0.1);
+}
+
+.aw-feature-list .mg-card-icon {
+  width: 46px;
+  height: 46px;
+  margin: 0;
+}
+
+.aw-feature-list h3 {
+  margin: 2px 0 4px;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.aw-feature-list p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+/* Precio a cotizar: filas tipo recibo */
+.aw-quote {
+  display: grid;
+  margin: 0;
+  padding: 6px 26px;
+  border: 1px solid var(--mg-line);
+  border-radius: 28px;
+  background: var(--mg-panel);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.aw-quote > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 20px;
+  align-items: baseline;
+  padding: 18px 0;
+}
+
+.aw-quote > div + div {
+  border-top: 1px dashed rgba(186, 220, 255, 0.14);
+}
+
+.aw-quote dt {
+  color: #fff;
+  font-weight: 650;
+}
+
+.aw-quote dd {
+  grid-row: span 2;
+  margin: 0;
+  color: #8fddff;
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-align: right;
+}
+
+.aw-quote .aw-quote-note {
+  grid-column: 1;
+  color: #8ea3bc;
+  font-size: 0.78rem;
+}
+
+.aw-two {
+  display: grid;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (min-width: 980px) {
+  .aw-two {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 64px;
+  }
+}
+
+/* Las migas siguen la alineación del texto de la portada */
+@media (max-width: 1019px) {
+  .mg-subpage-copy .aw-crumbs,
+  .mg-hero-copy .aw-crumbs {
+    justify-content: center;
+  }
+}
+
+/* Menú del celular: fondo casi opaco para que no se lea el texto de atrás */
+@media (max-width: 820px) {
+  .mg-header .site-nav {
+    background: rgba(7, 14, 28, 0.985);
+  }
+}
