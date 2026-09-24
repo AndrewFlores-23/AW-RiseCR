@@ -1082,3 +1082,54 @@
     background: rgba(7, 14, 28, 0.985);
   }
 }
+
+/* Fotos reales dentro de las pantallas ilustradas */
+.aw-product-tile img,
+.aw-post img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 11px;
+}
+
+.aw-post img {
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+}
+
+.aw-result-foto {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.aw-result-foto img {
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.aw-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.aw-item img {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.mg-mini-project > span.aw-mini-thumb {
+  flex: 0 0 auto;
+  background-position: top center;
+  background-size: cover;
+}
