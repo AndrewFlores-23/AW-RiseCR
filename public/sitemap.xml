@@ -3,41 +3,51 @@
   <url>
     <loc>https://awrisecr.com/</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://awrisecr.com/paginas-web.html</loc>
+    <loc>https://awrisecr.com/paginas-web</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://awrisecr.com/seo.html</loc>
+    <loc>https://awrisecr.com/seo</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://awrisecr.com/tiendas-en-linea.html</loc>
+    <loc>https://awrisecr.com/tiendas-en-linea</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://awrisecr.com/redes-sociales.html</loc>
+    <loc>https://awrisecr.com/redes-sociales</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://awrisecr.com/software-a-medida.html</loc>
+    <loc>https://awrisecr.com/software-a-medida</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://awrisecr.com/tarjetas-fidelizacion.html</loc>
+    <loc>https://awrisecr.com/tarjetas-fidelizacion</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://awrisecr.com/nosotros.html</loc>
+    <loc>https://awrisecr.com/nosotros</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://awrisecr.com/contacto.html</loc>
+    <loc>https://awrisecr.com/contacto</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://awrisecr.com/politicas.html</loc>
+    <loc>https://awrisecr.com/politicas</loc>
     <lastmod>2026-09-24</lastmod>
+    <priority>0.3</priority>
   </url>
 </urlset>
