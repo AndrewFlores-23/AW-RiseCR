@@ -1,53 +1,163 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://awrisecr.com/</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/"/>
   </url>
   <url>
     <loc>https://awrisecr.com/paginas-web</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/paginas-web"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/web-design"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/paginas-web"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/web-design</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/paginas-web"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/web-design"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/paginas-web"/>
   </url>
   <url>
     <loc>https://awrisecr.com/seo</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/seo"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/seo"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/seo"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/seo</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/seo"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/seo"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/seo"/>
   </url>
   <url>
     <loc>https://awrisecr.com/tiendas-en-linea</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/tiendas-en-linea"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/online-stores"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/tiendas-en-linea"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/online-stores</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/tiendas-en-linea"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/online-stores"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/tiendas-en-linea"/>
   </url>
   <url>
     <loc>https://awrisecr.com/redes-sociales</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/redes-sociales"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/social-media"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/redes-sociales"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/social-media</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/redes-sociales"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/social-media"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/redes-sociales"/>
   </url>
   <url>
     <loc>https://awrisecr.com/software-a-medida</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/software-a-medida"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/custom-software"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/software-a-medida"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/custom-software</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/software-a-medida"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/custom-software"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/software-a-medida"/>
   </url>
   <url>
     <loc>https://awrisecr.com/tarjetas-fidelizacion</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/tarjetas-fidelizacion"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/loyalty-cards"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/tarjetas-fidelizacion"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/loyalty-cards</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/tarjetas-fidelizacion"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/loyalty-cards"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/tarjetas-fidelizacion"/>
   </url>
   <url>
     <loc>https://awrisecr.com/nosotros</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/nosotros"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/nosotros"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/about</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/nosotros"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/nosotros"/>
   </url>
   <url>
     <loc>https://awrisecr.com/contacto</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/contacto"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/contacto"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/contact</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/contacto"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/contacto"/>
   </url>
   <url>
     <loc>https://awrisecr.com/politicas</loc>
     <lastmod>2026-09-24</lastmod>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/politicas"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/policies"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/politicas"/>
+  </url>
+  <url>
+    <loc>https://awrisecr.com/en/policies</loc>
+    <lastmod>2026-09-24</lastmod>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://awrisecr.com/politicas"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awrisecr.com/en/policies"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awrisecr.com/politicas"/>
   </url>
 </urlset>

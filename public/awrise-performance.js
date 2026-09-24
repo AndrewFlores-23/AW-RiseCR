@@ -120,6 +120,10 @@ const ICON_SPRITE = `
     <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
     <path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
   </symbol>
+  <symbol id="globe" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5s1.2-6.1 3.6-8.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+  </symbol>
   <symbol id="hand-arrow" viewBox="0 0 48 40">
     <path d="M40 4C36 18 24 28 8 30M8 30l7-7M8 30l9 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
@@ -180,13 +184,15 @@ if (menuButton && nav) {
   });
 }
 
+const EN = (document.documentElement.lang || "").startsWith("en");
+
 const makeWhatsAppUrl = (message) =>
   `https://wa.me/${BUSINESS.whatsapp}?text=${encodeURIComponent(message)}`;
 
 document.querySelectorAll("[data-whatsapp]").forEach((link) => {
   const message =
     link.dataset.whatsapp ||
-    "Hola AW-RiseCR, me gustaría recibir más información sobre sus servicios.";
+    (EN ? "Hi AW-RiseCR, I'd like more information about your services." : "Hola AW-RiseCR, me gustaría recibir más información sobre sus servicios.");
   link.href = makeWhatsAppUrl(message);
   link.target = "_blank";
   link.rel = "noopener noreferrer";
@@ -279,10 +285,12 @@ if (contactForm) {
   contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(contactForm);
-    const name = data.get("name")?.toString().trim() || "Hola";
-    const service = data.get("service")?.toString() || "una consulta";
+    const name = data.get("name")?.toString().trim() || (EN ? "a visitor" : "Hola");
+    const service = data.get("service")?.toString() || (EN ? "a question" : "una consulta");
     const details = data.get("message")?.toString().trim() || "";
-    const message = `Hola AW-RiseCR, soy ${name}. Me interesa ${service}.${details ? ` ${details}` : ""}`;
+    const message = EN
+      ? `Hi AW-RiseCR, I'm ${name}. I'm interested in ${service}.${details ? ` ${details}` : ""}`
+      : `Hola AW-RiseCR, soy ${name}. Me interesa ${service}.${details ? ` ${details}` : ""}`;
     window.open(makeWhatsAppUrl(message), "_blank", "noopener,noreferrer");
   });
 }
@@ -291,18 +299,16 @@ document.querySelectorAll("[data-whatsapp-form]").forEach((form) => {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(form);
-    const name = data.get("name")?.toString().trim() || "Cliente";
+    const name = data.get("name")?.toString().trim() || (EN ? "Client" : "Cliente");
     const type = form.dataset.formType;
 
     let message;
     if (type === "web") {
-      const idea = data.get("idea")?.toString().trim() || "No indicó detalles.";
-      message = [
-        "Hola AW-RiseCR, quiero cotizar un proyecto web.",
-        "",
-        `Nombre: ${name}`,
-        `Idea del proyecto: ${idea}`,
-      ].join("\n");
+      const idea = data.get("idea")?.toString().trim() || (EN ? "No details given." : "No indicó detalles.");
+      message = (EN
+        ? ["Hi AW-RiseCR, I'd like a quote for a web project.", "", `Name: ${name}`, `Project idea: ${idea}`]
+        : ["Hola AW-RiseCR, quiero cotizar un proyecto web.", "", `Nombre: ${name}`, `Idea del proyecto: ${idea}`]
+      ).join("\n");
     } else if (type === "repair") {
       const problem =
         data.get("problem")?.toString().trim() || "No indicó detalles.";
@@ -313,7 +319,9 @@ document.querySelectorAll("[data-whatsapp-form]").forEach((form) => {
         `Descripción del problema: ${problem}`,
       ].join("\n");
     } else {
-      message = `Hola AW-RiseCR, soy ${name}. Me gustaría recibir información.`;
+      message = EN
+        ? `Hi AW-RiseCR, I'm ${name}. I'd like some information.`
+        : `Hola AW-RiseCR, soy ${name}. Me gustaría recibir información.`;
     }
 
     window.open(makeWhatsAppUrl(message), "_blank", "noopener,noreferrer");

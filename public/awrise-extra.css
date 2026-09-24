@@ -1308,3 +1308,43 @@
     top: 120px;
   }
 }
+
+/* ---------- Botón de idioma ---------- */
+.site-nav .aw-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border: 1px solid rgba(185, 224, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #cfe9ff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.site-nav .aw-lang::after {
+  display: none;
+}
+
+.site-nav .aw-lang svg {
+  width: 15px;
+  height: 15px;
+  color: #83d8ff;
+}
+
+.site-nav .aw-lang:hover {
+  border-color: var(--mg-line-bright);
+  color: #fff;
+}
+
+@media (max-width: 820px) {
+  .mg-header .site-nav .aw-lang {
+    justify-content: center;
+    margin-top: 16px;
+    padding: 13px 16px;
+    border: 1px solid rgba(185, 224, 255, 0.18);
+    font-size: 0.9rem;
+  }
+}
