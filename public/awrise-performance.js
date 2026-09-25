@@ -189,6 +189,52 @@ const EN = (document.documentElement.lang || "").startsWith("en");
 const makeWhatsAppUrl = (message) =>
   `https://wa.me/${BUSINESS.whatsapp}?text=${encodeURIComponent(message)}`;
 
+/* ---------- Medición (GA4 / Google Tag Manager) ----------
+   Hoy el sitio no tiene etiquetas instaladas: los eventos quedan listos en
+   window.dataLayer. Con GTM se toman de ahí; si solo se instala gtag.js (GA4
+   directo), se envían con gtag. Nunca por las dos vías, para no duplicar. */
+const storage = {
+  get(key) {
+    try { return JSON.parse(sessionStorage.getItem(key)); } catch { return null; }
+  },
+  set(key, value) {
+    try { sessionStorage.setItem(key, JSON.stringify(value)); } catch {}
+  },
+  remove(key) {
+    try { sessionStorage.removeItem(key); } catch {}
+  },
+};
+
+// Guarda de dónde vino la visita (anuncios, campañas) para adjuntarlo al lead
+const AD_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "gbraid", "wbraid"];
+const landingParams = new URLSearchParams(location.search);
+if (AD_PARAMS.some((key) => landingParams.has(key))) {
+  storage.set(
+    "aw-atribucion",
+    Object.fromEntries(AD_PARAMS.filter((key) => landingParams.has(key)).map((key) => [key, landingParams.get(key)])),
+  );
+}
+const attribution = () => storage.get("aw-atribucion") || {};
+
+const track = (event, params = {}) => {
+  const data = { page_path: location.pathname, ...params };
+  window.dataLayer = window.dataLayer || [];
+  if (window.google_tag_manager || typeof window.gtag !== "function") {
+    window.dataLayer.push({ event, ...data });
+  } else {
+    window.gtag("event", event, data);
+  }
+};
+
+const linkLocation = (element) =>
+  element.dataset.track || element.closest("[id]")?.id || (element.closest(".mg-mobile-dock") ? "barra-movil" : "pagina");
+
+// En la página de gracias, el botón vuelve a abrir el mensaje que armó el formulario
+const savedLead = storage.get("aw-lead-mensaje");
+document.querySelectorAll("[data-whatsapp-guardado]").forEach((link) => {
+  if (savedLead) link.dataset.whatsapp = savedLead;
+});
+
 document.querySelectorAll("[data-whatsapp]").forEach((link) => {
   const message =
     link.dataset.whatsapp ||
@@ -196,6 +242,39 @@ document.querySelectorAll("[data-whatsapp]").forEach((link) => {
   link.href = makeWhatsAppUrl(message);
   link.target = "_blank";
   link.rel = "noopener noreferrer";
+  // Un clic no garantiza que la persona envíe el mensaje: se mide aparte del lead
+  link.addEventListener("click", () => track("whatsapp_click", { link_location: linkLocation(link) }));
+});
+
+document.querySelectorAll('a[href^="tel:"]').forEach((link) => {
+  link.addEventListener("click", () => track("phone_click", { link_location: linkLocation(link) }));
+});
+
+// Lead: el formulario marca el envío y la página de gracias lo registra una sola vez
+const leadMessage = (message) => {
+  const ref = attribution();
+  if (ref.utm_source || ref.utm_campaign) return `${message}\n\nRef: ${[ref.utm_source, ref.utm_campaign].filter(Boolean).join(" / ")}`;
+  if (ref.gclid || ref.gbraid || ref.wbraid) return `${message}\n\nRef: Google Ads`;
+  return message;
+};
+
+const sendLead = (form, message, details = {}) => {
+  const text = leadMessage(message);
+  window.open(makeWhatsAppUrl(text), "_blank", "noopener,noreferrer");
+  if (!form.dataset.thanks) return;
+  storage.set("aw-lead", { form_id: form.dataset.formId || "formulario", ...details });
+  storage.set("aw-lead-mensaje", text);
+  location.assign(form.dataset.thanks);
+};
+
+const pendingLead = storage.get("aw-lead");
+if (pendingLead && document.body.dataset.page === "gracias") {
+  track("generate_lead", { ...pendingLead, ...attribution() });
+  storage.remove("aw-lead");
+}
+
+document.querySelectorAll("[data-contact-form], [data-whatsapp-form]").forEach((form) => {
+  form.addEventListener("focusin", () => track("quote_start", { form_id: form.dataset.formId || "formulario" }), { once: true });
 });
 
 document.querySelectorAll("[data-social]").forEach((link) => {
@@ -280,8 +359,7 @@ if (enableTilt) {
   });
 }
 
-const contactForm = document.querySelector("[data-contact-form]");
-if (contactForm) {
+document.querySelectorAll("[data-contact-form]").forEach((contactForm) => {
   contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(contactForm);
@@ -309,9 +387,9 @@ if (contactForm) {
       "",
       ...fields.filter(([, text]) => text).map(([label, text]) => `${label}: ${text}`),
     ].join("\n");
-    window.open(makeWhatsAppUrl(message), "_blank", "noopener,noreferrer");
+    sendLead(contactForm, message, { service: value("service"), budget_range: value("budget") });
   });
-}
+});
 
 document.querySelectorAll("[data-whatsapp-form]").forEach((form) => {
   form.addEventListener("submit", (event) => {
@@ -342,7 +420,7 @@ document.querySelectorAll("[data-whatsapp-form]").forEach((form) => {
         : `Hola AW-RiseCR, soy ${name}. Me gustaría recibir información.`;
     }
 
-    window.open(makeWhatsAppUrl(message), "_blank", "noopener,noreferrer");
+    sendLead(form, message, { service: type || "consulta" });
   });
 });
 

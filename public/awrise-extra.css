@@ -1475,14 +1475,16 @@ html.aw-intro body {
 
 /* ---------- Portada comercial: titular, precio de referencia y casos ---------- */
 /* El titular es más largo que el anterior: baja el tamaño para que respire */
-.mg-home-copy h1.aw-home-h1 {
+.mg-home-copy h1.aw-home-h1,
+.mg-subpage-copy h1.aw-lp-h1 {
   font-size: clamp(2.2rem, 9vw, 3rem);
   line-height: 1.02;
   text-wrap: balance;
 }
 
 @media (min-width: 700px) {
-  .mg-home-copy h1.aw-home-h1 {
+  .mg-home-copy h1.aw-home-h1,
+  .mg-subpage-copy h1.aw-lp-h1 {
     font-size: clamp(3rem, 5.4vw, 4.1rem);
   }
 }
@@ -1548,4 +1550,221 @@ html.aw-intro body {
 
 .aw-contact-actions {
   position: relative;
+}
+
+/* ---------- Landing: diseño web en Costa Rica ---------- */
+.aw-cross a.aw-cross-wide {
+  grid-column: 1 / -1;
+}
+
+.aw-lp-price {
+  display: grid;
+  gap: 2px;
+  max-width: 420px;
+  margin: 20px auto 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(104, 222, 255, 0.22);
+  border-radius: 18px;
+  background: rgba(36, 141, 248, 0.08);
+  text-align: left;
+}
+
+.aw-lp-price span {
+  color: #8ea3bc;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.aw-lp-price strong {
+  color: #fff;
+  font-size: 1.9rem;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.aw-lp-price small {
+  color: #8ea3bc;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.aw-lp-wa {
+  margin: 16px 0 0;
+  color: #8ea3bc;
+  font-size: 0.85rem;
+}
+
+.aw-lp-wa a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #72d2ff;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgba(114, 210, 255, 0.3);
+  text-underline-offset: 3px;
+}
+
+.aw-lp-wa svg {
+  width: 16px;
+  height: 16px;
+}
+
+.aw-hero-price a {
+  color: #72d2ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (min-width: 1020px) {
+  .aw-lp-price {
+    margin-left: 0;
+  }
+}
+
+.aw-lp-groups,
+.aw-lp-benefits {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aw-lp-groups .mg-glass-card h3 {
+  margin: 14px 0 12px;
+}
+
+.aw-lp-checks {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aw-lp-checks li {
+  position: relative;
+  padding-left: 22px;
+  color: #b6c7d9;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.aw-lp-checks li::before {
+  position: absolute;
+  top: 0.55em;
+  left: 2px;
+  width: 9px;
+  height: 5px;
+  border-bottom: 2px solid #6fd3ff;
+  border-left: 2px solid #6fd3ff;
+  transform: rotate(-45deg);
+  content: "";
+}
+
+.aw-lp-benefits li {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 18px;
+  border: 1px solid var(--mg-line);
+  border-radius: 20px;
+  background: var(--mg-panel);
+}
+
+.aw-lp-benefits h3 {
+  margin: 2px 0 4px;
+  color: #fff;
+  font-size: 1.02rem;
+}
+
+.aw-lp-benefits p {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+@media (min-width: 700px) {
+  .aw-lp-benefits {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mg-process-track.aw-process-6 {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 18px;
+  }
+
+  .mg-process-track.aw-process-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1020px) {
+  .aw-lp-groups {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mg-process-track.aw-process-6 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.aw-form-note {
+  color: #6f849c;
+  font-size: 0.75rem;
+}
+
+.aw-lp-next {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.aw-lp-next ol {
+  display: grid;
+  gap: 14px;
+  margin: 6px 0 4px;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+
+.aw-lp-next li {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  column-gap: 12px;
+  counter-increment: paso;
+}
+
+.aw-lp-next li::before {
+  display: grid;
+  grid-row: span 2;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid rgba(128, 209, 255, 0.2);
+  border-radius: 11px;
+  background: rgba(15, 35, 59, 0.88);
+  color: #70d4ff;
+  font-size: 0.7rem;
+  content: "0" counter(paso);
+}
+
+.aw-lp-next li b {
+  color: #fff;
+}
+
+.aw-lp-next li span,
+.aw-lp-next p {
+  margin: 0;
+  color: #8ea3bc;
+  font-size: 0.86rem;
+}
+
+.aw-thanks-hero {
+  min-height: auto;
 }
