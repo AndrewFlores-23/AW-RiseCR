@@ -167,6 +167,9 @@
       .to(".aw-intro-saltar", { opacity: 0, duration: 0.2 }, "salida")
       .to(overlay, { clipPath: "inset(0 0 100% 0)", duration: 0.7, ease: "power4.inOut" }, "salida+=0.2");
 
+    // Toda la secuencia al doble de velocidad: ~1,9 s en total
+    tl.timeScale(2);
+
     // Saltar: va directo a la salida
     const saltar = () => {
       if (tl.time() < tl.labels.salida) tl.seek("salida");
