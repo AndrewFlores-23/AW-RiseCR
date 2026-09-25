@@ -1768,3 +1768,34 @@ html.aw-intro body {
 .aw-thanks-hero {
   min-height: auto;
 }
+
+/* Plan recomendado: un solo precio en lugar del par pago inicial + mensualidad */
+.mg-price-pair.aw-price-single {
+  display: flex;
+}
+
+.aw-plan-note {
+  margin: 14px 0 22px;
+  color: #8ea3bc;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+/* Héroe de Páginas web con el celular: el titular más largo necesita menos tamaño */
+.mg-hero-copy h1.aw-lp-h1 {
+  font-size: clamp(2.2rem, 9vw, 3rem);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+@media (min-width: 700px) {
+  .mg-hero-copy h1.aw-lp-h1 {
+    font-size: clamp(3rem, 4.6vw, 3.7rem);
+  }
+}
+
+@media (min-width: 1020px) {
+  .mg-hero-copy .aw-lp-price {
+    margin-left: 0;
+  }
+}

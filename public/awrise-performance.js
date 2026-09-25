@@ -189,10 +189,12 @@ const EN = (document.documentElement.lang || "").startsWith("en");
 const makeWhatsAppUrl = (message) =>
   `https://wa.me/${BUSINESS.whatsapp}?text=${encodeURIComponent(message)}`;
 
-/* ---------- Medición (GA4 / Google Tag Manager) ----------
+/* ---------- Medición (GA4 / Google Tag Manager / Píxel de Meta) ----------
    Hoy el sitio no tiene etiquetas instaladas: los eventos quedan listos en
    window.dataLayer. Con GTM se toman de ahí; si solo se instala gtag.js (GA4
-   directo), se envían con gtag. Nunca por las dos vías, para no duplicar. */
+   directo), se envían con gtag. Nunca por las dos vías, para no duplicar.
+   Si el Píxel de Meta está en la página (y no se maneja desde GTM), recibe
+   sus eventos estándar: Lead y Contact. */
 const storage = {
   get(key) {
     try { return JSON.parse(sessionStorage.getItem(key)); } catch { return null; }
@@ -206,7 +208,7 @@ const storage = {
 };
 
 // Guarda de dónde vino la visita (anuncios, campañas) para adjuntarlo al lead
-const AD_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "gbraid", "wbraid"];
+const AD_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "gbraid", "wbraid", "fbclid"];
 const landingParams = new URLSearchParams(location.search);
 if (AD_PARAMS.some((key) => landingParams.has(key))) {
   storage.set(
@@ -223,6 +225,10 @@ const track = (event, params = {}) => {
     window.dataLayer.push({ event, ...data });
   } else {
     window.gtag("event", event, data);
+  }
+  const metaEvent = { generate_lead: "Lead", whatsapp_click: "Contact", phone_click: "Contact" }[event];
+  if (metaEvent && typeof window.fbq === "function" && !window.google_tag_manager) {
+    window.fbq("track", metaEvent, { content_name: data.form_id || data.link_location || event });
   }
 };
 
@@ -255,6 +261,7 @@ const leadMessage = (message) => {
   const ref = attribution();
   if (ref.utm_source || ref.utm_campaign) return `${message}\n\nRef: ${[ref.utm_source, ref.utm_campaign].filter(Boolean).join(" / ")}`;
   if (ref.gclid || ref.gbraid || ref.wbraid) return `${message}\n\nRef: Google Ads`;
+  if (ref.fbclid) return `${message}\n\nRef: Meta Ads`;
   return message;
 };
 
