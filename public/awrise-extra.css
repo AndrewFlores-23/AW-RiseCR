@@ -1348,3 +1348,113 @@
     font-size: 0.9rem;
   }
 }
+
+/* ---------- Animación de apertura ---------- */
+
+/* Tapa la página desde el primer instante mientras carga la animación.
+   Si el JS no llega, se retira sola a los 6 segundos. */
+html.aw-intro:not(.aw-intro-activa)::after {
+  position: fixed;
+  z-index: 2147483646;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(38, 112, 255, 0.2), transparent 42%), #050912;
+  content: "";
+  animation: aw-intro-seguro 0.4s ease 6s forwards;
+}
+
+@keyframes aw-intro-seguro {
+  to { opacity: 0; visibility: hidden; }
+}
+
+html.aw-intro body {
+  overflow: hidden;
+}
+
+#aw-intro {
+  position: fixed;
+  z-index: 2147483647;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(38, 112, 255, 0.22), transparent 42%),
+    radial-gradient(circle at 50% 100%, rgba(102, 92, 246, 0.14), transparent 50%),
+    #050912;
+  clip-path: inset(0 0 0% 0);
+  cursor: pointer;
+}
+
+#aw-intro canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.aw-intro-marca {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: -4vh;
+  text-align: center;
+}
+
+.aw-intro-logo-caja {
+  position: relative;
+  width: min(230px, 52vw);
+  aspect-ratio: 1;
+}
+
+.aw-intro-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.aw-intro-scan {
+  position: absolute;
+  left: -8%;
+  width: 116%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #bfe6ff, #fff, #bfe6ff, transparent);
+  box-shadow: 0 0 18px 4px rgba(110, 200, 255, 0.55);
+  opacity: 0;
+}
+
+.aw-intro-nombre {
+  margin: 6px 0 0;
+  color: #f4f8ff;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.aw-intro-nombre span {
+  display: inline-block;
+  opacity: 0;
+}
+
+.aw-intro-frase {
+  margin: 0;
+  color: #8ea3bc;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0;
+}
+
+.aw-intro-saltar {
+  position: absolute;
+  bottom: calc(26px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  margin: 0;
+  color: #4f6178;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
