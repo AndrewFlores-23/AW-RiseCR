@@ -167,8 +167,8 @@
       .to(".aw-intro-saltar", { opacity: 0, duration: 0.2 }, "salida")
       .to(overlay, { clipPath: "inset(0 0 100% 0)", duration: 0.7, ease: "power4.inOut" }, "salida+=0.2");
 
-    // Ajusta la velocidad para que toda la secuencia dure 2,6 s
-    const DURACION = 2.6;
+    // Ajusta la velocidad para que toda la secuencia dure 2,3 s
+    const DURACION = 2.3;
     tl.timeScale(tl.duration() / DURACION);
 
     // Saltar: va directo a la salida
