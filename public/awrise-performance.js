@@ -285,12 +285,30 @@ if (contactForm) {
   contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(contactForm);
-    const name = data.get("name")?.toString().trim() || (EN ? "a visitor" : "Hola");
-    const service = data.get("service")?.toString() || (EN ? "a question" : "una consulta");
-    const details = data.get("message")?.toString().trim() || "";
-    const message = EN
-      ? `Hi AW-RiseCR, I'm ${name}. I'm interested in ${service}.${details ? ` ${details}` : ""}`
-      : `Hola AW-RiseCR, soy ${name}. Me interesa ${service}.${details ? ` ${details}` : ""}`;
+    const value = (key) => data.get(key)?.toString().trim() || "";
+    // Solo se agregan al mensaje los campos que la persona llenó
+    const fields = EN
+      ? [
+          ["Name", value("name")],
+          ["Business", value("business")],
+          ["WhatsApp / phone", value("phone")],
+          ["I need", value("service")],
+          ["Approximate budget", value("budget")],
+          ["Details", value("message")],
+        ]
+      : [
+          ["Nombre", value("name")],
+          ["Negocio", value("business")],
+          ["WhatsApp / teléfono", value("phone")],
+          ["Necesito", value("service")],
+          ["Presupuesto aproximado", value("budget")],
+          ["Detalles", value("message")],
+        ];
+    const message = [
+      EN ? "Hi AW-RiseCR, I'd like a quote for a project." : "Hola AW-RiseCR, quiero valorar un proyecto.",
+      "",
+      ...fields.filter(([, text]) => text).map(([label, text]) => `${label}: ${text}`),
+    ].join("\n");
     window.open(makeWhatsAppUrl(message), "_blank", "noopener,noreferrer");
   });
 }

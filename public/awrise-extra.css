@@ -1472,3 +1472,80 @@ html.aw-intro body {
     display: none;
   }
 }
+
+/* ---------- Portada comercial: titular, precio de referencia y casos ---------- */
+/* El titular es más largo que el anterior: baja el tamaño para que respire */
+.mg-home-copy h1.aw-home-h1 {
+  font-size: clamp(2.2rem, 9vw, 3rem);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+@media (min-width: 700px) {
+  .mg-home-copy h1.aw-home-h1 {
+    font-size: clamp(3rem, 5.4vw, 4.1rem);
+  }
+}
+
+.aw-hero-price,
+.aw-form-price {
+  margin: 18px 0 0;
+  color: #8ea3bc;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.mg-home-copy > .aw-hero-price {
+  margin-top: 18px;
+  font-size: 0.82rem;
+}
+
+.aw-hero-price b,
+.aw-form-price b {
+  color: #fff;
+}
+
+.aw-hero-price span {
+  display: block;
+  color: #6f849c;
+  font-size: 0.74rem;
+}
+
+.aw-form-price {
+  padding: 11px 14px;
+  border: 1px solid rgba(183, 221, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 0.78rem;
+}
+
+.mg-contact-card label small {
+  color: #6f849c;
+  font-weight: 500;
+}
+
+.mg-home-project .mg-home-project-body p + p {
+  margin-top: -10px;
+}
+
+.aw-case-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.aw-case-tags li {
+  padding: 5px 9px;
+  border: 1px solid rgba(120, 213, 255, 0.18);
+  border-radius: 999px;
+  color: #a9c4dc;
+  font-size: 0.62rem;
+  font-weight: 650;
+}
+
+.aw-contact-actions {
+  position: relative;
+}
