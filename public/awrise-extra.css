@@ -1458,3 +1458,17 @@ html.aw-intro body {
   letter-spacing: 0.08em;
   text-align: center;
 }
+
+/* ---------- Carrusel de proyectos automático ---------- */
+/* Mientras avanza solo, el imán de posición se apaga para que el movimiento sea continuo */
+.mg-home-projects.aw-auto {
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+}
+
+/* En computadora las tarjetas van en fila: las copias del carrusel sobran */
+@media (min-width: 1020px) {
+  .mg-home-projects .aw-clon {
+    display: none;
+  }
+}

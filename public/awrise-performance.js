@@ -521,3 +521,81 @@ document.querySelectorAll("[data-year]").forEach((element) => {
     });
   });
 })();
+;
+(() => {
+  // Carrusel de proyectos: en celular y tableta avanza solo, sin fin, de
+  // derecha a izquierda. Se pausa al tocarlo y retoma a los pocos segundos.
+  const reducir = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const PX_POR_SEGUNDO = 32;
+  const ESPERA_TRAS_TOCAR = 2500;
+
+  document.querySelectorAll("[data-auto-carrusel]").forEach((rail) => {
+    const originales = [...rail.children];
+    if (originales.length < 2 || reducir.matches) return;
+
+    // Copias al final para que el recorrido no tenga salto al volver a empezar
+    originales.forEach((item) => {
+      const copia = item.cloneNode(true);
+      copia.classList.add("aw-clon");
+      copia.setAttribute("aria-hidden", "true");
+      copia.querySelectorAll("a, button").forEach((el) => el.setAttribute("tabindex", "-1"));
+      copia.querySelectorAll("img").forEach((img) => img.setAttribute("loading", "eager"));
+      rail.appendChild(copia);
+    });
+
+    const esCarrusel = () => rail.scrollWidth > rail.clientWidth + 8;
+    const periodo = () => {
+      const a = originales[0].getBoundingClientRect().left;
+      const b = rail.querySelector(".aw-clon").getBoundingClientRect().left;
+      return b - a;
+    };
+
+    let pos = rail.scrollLeft;
+    let ultimo = 0;
+    let pausaHasta = 0;
+    let visible = false;
+    let tocando = false;
+    let frame = 0;
+
+    const pausar = (ms = ESPERA_TRAS_TOCAR) => { pausaHasta = performance.now() + ms; };
+
+    const paso = (t) => {
+      frame = requestAnimationFrame(paso);
+      const dt = ultimo ? Math.min(t - ultimo, 64) : 16;
+      ultimo = t;
+      if (!visible || tocando || document.hidden || t < pausaHasta || !esCarrusel()) {
+        pos = rail.scrollLeft;
+        return;
+      }
+      rail.classList.add("aw-auto");
+      // Si el usuario deslizó, seguimos desde donde lo dejó
+      if (Math.abs(rail.scrollLeft - pos) > 3) pos = rail.scrollLeft;
+      pos += (PX_POR_SEGUNDO * dt) / 1000;
+      const p = periodo();
+      if (p > 0 && pos >= p) pos -= p;
+      rail.scrollLeft = pos;
+    };
+
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.2 }).observe(rail);
+
+    rail.addEventListener("pointerdown", () => { tocando = true; rail.classList.remove("aw-auto"); });
+    window.addEventListener("pointerup", () => { if (tocando) { tocando = false; pausar(); } });
+    rail.addEventListener("touchstart", () => { tocando = true; rail.classList.remove("aw-auto"); }, { passive: true });
+    rail.addEventListener("touchend", () => { tocando = false; pausar(); }, { passive: true });
+    rail.addEventListener("wheel", () => { rail.classList.remove("aw-auto"); pausar(); }, { passive: true });
+    rail.addEventListener("mouseenter", () => { tocando = true; });
+    rail.addEventListener("mouseleave", () => { tocando = false; pausar(800); });
+    rail.addEventListener("focusin", () => { tocando = true; });
+    rail.addEventListener("focusout", () => { tocando = false; pausar(); });
+    // Al deslizar hacia atrás desde el inicio, saltamos a las copias sin que se note
+    rail.addEventListener("scroll", () => {
+      const p = periodo();
+      if (p > 0 && rail.scrollLeft <= 1 && !rail.classList.contains("aw-auto") && !tocando) {
+        rail.scrollLeft += p; pos = rail.scrollLeft;
+      }
+    }, { passive: true });
+
+    pausar(1200);
+    frame = requestAnimationFrame(paso);
+  });
+})();
