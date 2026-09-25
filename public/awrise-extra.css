@@ -1858,3 +1858,9 @@ html.aw-intro body {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+.aw-plan-disclaimer a {
+  color: #72d2ff;
+  font-weight: 700;
+  white-space: nowrap;
+}
