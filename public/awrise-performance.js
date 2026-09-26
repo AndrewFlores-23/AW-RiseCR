@@ -259,15 +259,17 @@ const showCookieBanner = () => {
   banner.setAttribute("aria-live", "polite");
   banner.setAttribute("aria-label", EN ? "Cookie notice" : "Aviso de cookies");
   banner.innerHTML = EN
-    ? '<p>We use cookies to measure visits and ads. <a href="/en/policies">Learn more</a></p><div><button type="button" data-consent="denied">Decline</button><button type="button" data-consent="granted">Accept</button></div>'
-    : '<p>Usamos cookies para medir visitas y anuncios. <a href="/politicas#cookies">Más info</a></p><div><button type="button" data-consent="denied">Rechazar</button><button type="button" data-consent="granted">Aceptar</button></div>';
+    ? '<p>We use cookies to improve your experience and understand how our site is used. <a href="/en/policies">Learn more</a></p><div><button type="button" data-consent="denied">Decline</button><button type="button" data-consent="granted">Accept</button></div>'
+    : '<p>Usamos cookies para mejorar tu experiencia y entender cómo se usa nuestra web. <a href="/politicas#cookies">Más info</a></p><div><button type="button" data-consent="denied">Rechazar</button><button type="button" data-consent="granted">Aceptar</button></div>';
   banner.querySelectorAll("[data-consent]").forEach((button) => {
     button.addEventListener("click", () => {
       applyConsent(button.dataset.consent);
       banner.remove();
+      document.body.classList.remove("aw-cookies-open");
     });
   });
   document.body.append(banner);
+  document.body.classList.add("aw-cookies-open");
 };
 
 if (!consentChoice()) showCookieBanner();

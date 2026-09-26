@@ -1941,7 +1941,7 @@ html.aw-intro body {
   position: fixed;
   z-index: 95;
   right: 12px;
-  bottom: calc(84px + env(safe-area-inset-bottom));
+  bottom: calc(10px + env(safe-area-inset-bottom));
   left: 12px;
   display: flex;
   gap: 10px;
@@ -2012,5 +2012,12 @@ html.aw-intro body {
     bottom: 20px;
     left: 22px;
     width: 400px;
+  }
+}
+
+/* En celular el aviso ocupa el lugar de la barra inferior hasta que la persona elige */
+@media (max-width: 699px) {
+  .aw-cookies-open .mg-mobile-dock {
+    visibility: hidden;
   }
 }
