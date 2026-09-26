@@ -218,19 +218,66 @@ if (AD_PARAMS.some((key) => landingParams.has(key))) {
 }
 const attribution = () => storage.get("aw-atribucion") || {};
 
+// GTM (GTM-K4CSRPC4) toma estos eventos del dataLayer; las etiquetas se configuran allá
 const track = (event, params = {}) => {
   const data = { page_path: location.pathname, ...params };
   window.dataLayer = window.dataLayer || [];
-  if (window.google_tag_manager || typeof window.gtag !== "function") {
-    window.dataLayer.push({ event, ...data });
-  } else {
-    window.gtag("event", event, data);
-  }
+  window.dataLayer.push({ event, ...data });
   const metaEvent = { generate_lead: "Lead", whatsapp_click: "Contact", phone_click: "Contact" }[event];
   if (metaEvent && typeof window.fbq === "function" && !window.google_tag_manager) {
     window.fbq("track", metaEvent, { content_name: data.form_id || data.link_location || event });
   }
 };
+
+/* ---------- Aviso de cookies ----------
+   El consentimiento empieza denegado (ver el <head> de cada página). Solo si la
+   persona acepta se habilitan la medición y la publicidad de Google. */
+const CONSENT_KEY = "aw-consent";
+const consentChoice = () => {
+  try { return localStorage.getItem(CONSENT_KEY); } catch { return null; }
+};
+const applyConsent = (choice) => {
+  try { localStorage.setItem(CONSENT_KEY, choice); } catch {}
+  const value = choice === "granted" ? "granted" : "denied";
+  if (typeof window.gtag === "function") {
+    window.gtag("consent", "update", {
+      ad_storage: value,
+      ad_user_data: value,
+      ad_personalization: value,
+      analytics_storage: value,
+    });
+  }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: "consent_update", consent_choice: value });
+};
+
+const showCookieBanner = () => {
+  if (document.querySelector(".aw-cookies")) return;
+  const banner = document.createElement("div");
+  banner.className = "aw-cookies";
+  banner.setAttribute("role", "dialog");
+  banner.setAttribute("aria-live", "polite");
+  banner.setAttribute("aria-label", EN ? "Cookie notice" : "Aviso de cookies");
+  banner.innerHTML = EN
+    ? '<p>We use cookies to measure visits and ads. <a href="/en/policies">Learn more</a></p><div><button type="button" data-consent="denied">Decline</button><button type="button" data-consent="granted">Accept</button></div>'
+    : '<p>Usamos cookies para medir visitas y anuncios. <a href="/politicas#cookies">Más info</a></p><div><button type="button" data-consent="denied">Rechazar</button><button type="button" data-consent="granted">Aceptar</button></div>';
+  banner.querySelectorAll("[data-consent]").forEach((button) => {
+    button.addEventListener("click", () => {
+      applyConsent(button.dataset.consent);
+      banner.remove();
+    });
+  });
+  document.body.append(banner);
+};
+
+if (!consentChoice()) showCookieBanner();
+
+document.querySelectorAll("[data-cookie-prefs]").forEach((button) => {
+  button.addEventListener("click", () => {
+    try { localStorage.removeItem(CONSENT_KEY); } catch {}
+    showCookieBanner();
+  });
+});
 
 const linkLocation = (element) =>
   element.dataset.track || element.closest("[id]")?.id || (element.closest(".mg-mobile-dock") ? "barra-movil" : "pagina");

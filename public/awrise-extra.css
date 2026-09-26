@@ -1934,3 +1934,83 @@ html.aw-intro body {
 .mg-page .mg-section.aw-own-section {
   padding-top: 24px;
 }
+
+/* ---------- Aviso de cookies ---------- */
+/* En celular queda encima de la barra inferior; en computadora, abajo a la izquierda */
+.aw-cookies {
+  position: fixed;
+  z-index: 95;
+  right: 12px;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  left: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 10px 10px 14px;
+  border: 1px solid rgba(194, 226, 255, 0.18);
+  border-radius: 16px;
+  background: rgba(8, 16, 31, 0.95);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px);
+}
+
+.aw-cookies p {
+  flex: 1;
+  margin: 0;
+  color: #b6c7d9;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.aw-cookies a {
+  color: #72d2ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.aw-cookies div {
+  display: flex;
+  flex-shrink: 0;
+  gap: 6px;
+}
+
+.aw-cookies button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(183, 221, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #dceeff;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.aw-cookies button[data-consent="granted"] {
+  border-color: rgba(196, 235, 255, 0.25);
+  background: linear-gradient(135deg, #248df8, #665cf6);
+  color: #fff;
+}
+
+.aw-cookie-prefs {
+  margin-top: 6px;
+  padding: 10px 14px;
+  border: 1px solid rgba(183, 221, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #dceeff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+@media (min-width: 700px) {
+  .aw-cookies {
+    right: auto;
+    bottom: 20px;
+    left: 22px;
+    width: 400px;
+  }
+}
