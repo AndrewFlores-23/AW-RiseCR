@@ -1474,19 +1474,48 @@ html.aw-intro body {
 }
 
 /* ---------- Portada comercial: titular, precio de referencia y casos ---------- */
-/* El titular es más largo que el anterior: baja el tamaño para que respire */
-.mg-home-copy h1.aw-home-h1,
-.mg-subpage-copy h1.aw-lp-h1 {
+/* Escala de títulos de todo el sitio: el H1 de cada héroe tiene el mismo tamaño
+   en todas las páginas y los títulos de sección (H2) quedan un paso más abajo */
+.mg-page .mg-home-copy h1,
+.mg-page .mg-subpage-hero h1,
+.mg-page .mg-hero-copy h1 {
   font-size: clamp(2.2rem, 9vw, 3rem);
   line-height: 1.02;
   text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.mg-page .mg-heading h2 {
+  font-size: clamp(1.75rem, 7.4vw, 2.2rem);
+  line-height: 1.06;
+}
+
+.mg-page .mg-contact-panel h2 {
+  font-size: clamp(1.75rem, 7.4vw, 2.2rem);
+}
+
+.mg-page .mg-story-panel blockquote {
+  font-size: clamp(1.45rem, 6vw, 2.3rem);
 }
 
 @media (min-width: 700px) {
-  .mg-home-copy h1.aw-home-h1,
-  .mg-subpage-copy h1.aw-lp-h1 {
-    font-size: clamp(3rem, 5.4vw, 4.1rem);
+  .mg-page .mg-home-copy h1,
+  .mg-page .mg-subpage-hero h1,
+  .mg-page .mg-hero-copy h1 {
+    font-size: clamp(3rem, 5vw, 3.9rem);
   }
+
+  .mg-page .mg-heading h2,
+  .mg-page .mg-contact-panel h2 {
+    font-size: clamp(2.1rem, 3.4vw, 2.75rem);
+  }
+}
+
+/* Una palabra larga en el titular no debe ensanchar la columna del héroe */
+.mg-home-grid > *,
+.mg-subpage-grid > *,
+.mg-hero-grid > * {
+  min-width: 0;
 }
 
 .aw-hero-price,
@@ -1781,19 +1810,6 @@ html.aw-intro body {
   line-height: 1.55;
 }
 
-/* Héroe de Páginas web con el celular: el titular más largo necesita menos tamaño */
-.mg-hero-copy h1.aw-lp-h1 {
-  font-size: clamp(2.2rem, 9vw, 3rem);
-  line-height: 1.02;
-  text-wrap: balance;
-}
-
-@media (min-width: 700px) {
-  .mg-hero-copy h1.aw-lp-h1 {
-    font-size: clamp(3rem, 4.6vw, 3.7rem);
-  }
-}
-
 @media (min-width: 1020px) {
   .mg-hero-copy .aw-lp-price {
     margin-left: 0;
@@ -1863,4 +1879,58 @@ html.aw-intro body {
   color: #72d2ff;
   font-weight: 700;
   white-space: nowrap;
+}
+
+/* Propiedad de la web: aviso antes de los planes */
+.aw-own {
+  display: grid;
+  gap: 18px;
+  padding: 26px;
+  border: 1px solid rgba(104, 222, 255, 0.22);
+  border-radius: 28px;
+  background: linear-gradient(120deg, rgba(36, 141, 248, 0.14), rgba(102, 92, 246, 0.08)), var(--mg-panel);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.aw-own h2 {
+  margin: 10px 0 10px;
+  color: #fff;
+  font-size: clamp(1.75rem, 7.4vw, 2.2rem);
+  line-height: 1.06;
+}
+
+.aw-own p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.aw-own .aw-own-note {
+  color: #6f849c;
+  font-size: 0.75rem;
+}
+
+.aw-own-section + .mg-pricing {
+  padding-top: 0;
+}
+
+@media (min-width: 900px) {
+  .aw-own {
+    grid-template-columns: 56px 1.3fr 1fr;
+    align-items: center;
+    gap: 28px;
+    padding: 36px 40px;
+  }
+
+  .aw-own h2 {
+    font-size: clamp(2.1rem, 3.4vw, 2.75rem);
+  }
+
+  .aw-own .aw-own-note {
+    grid-column: 2 / -1;
+  }
+}
+
+.mg-page .mg-section.aw-own-section {
+  padding-top: 24px;
 }
