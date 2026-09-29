@@ -6,7 +6,6 @@ const BUSINESS = {
   instagram:
     "https://www.instagram.com/aw_risecr?igsh=N21jZndsODR4Zndo&utm_source=qr",
   facebook: "https://www.facebook.com/share/1Ed5t5b6TQ/?mibextid=wwXIfr",
-  maps: "https://maps.app.goo.gl/gUyp98sPHAyXdhok9?g_st=ic",
 };
 
 const ICON_SPRITE = `
@@ -337,12 +336,6 @@ document.querySelectorAll("[data-social]").forEach((link) => {
   const url = BUSINESS[link.dataset.social];
   if (!url) return;
   link.href = url;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-});
-
-document.querySelectorAll("[data-map-link]").forEach((link) => {
-  link.href = BUSINESS.maps;
   link.target = "_blank";
   link.rel = "noopener noreferrer";
 });
