@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Crea tu nueva contrase&#241;a &#183; AW-RiseCR</title>
+<style>
+  /* Gmail en modo oscuro (iPhone) oscurece el texto blanco: esto lo mantiene blanco (sin efecto en modo claro) */
+  u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
+  u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
+</style>
+</head>
+<body class="body" style="margin:0; padding:0; background:#e9eef7;">
+<!-- Asunto en Supabase: Crea tu nueva contrase&#241;a &#183; AW-RiseCR -->
+<div style="display:none; max-height:0; overflow:hidden; opacity:0;">Usa este enlace para crear una nueva contrase&#241;a del portal.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#e9eef7;">
+  <tr>
+    <td align="center" style="padding:28px 14px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px; border-radius:14px; overflow:hidden; background:#ffffff; box-shadow:0 8px 28px rgba(6,22,51,.18);">
+        <!-- Cabecera: el espacio (con el logo y el nombre dentro de la imagen, as&#237; Gmail no les cambia el color) -->
+        <tr>
+          <td height="88" bgcolor="#061633" style="height:88px; background-color:#061633; background-image:url('https://awrisecr.com/correo/cabecera-arriba.png'); background-size:560px 88px; background-position:left top; background-repeat:no-repeat; font-size:0; line-height:0;">&nbsp;</td>
+        </tr>
+        <!-- Horizonte del planeta: transparente abajo, toma el color del cuerpo (blanco, u oscuro en modo oscuro) -->
+        <tr>
+          <td height="64" bgcolor="#ffffff" style="height:64px; background-color:#ffffff; background-image:url('https://awrisecr.com/correo/cabecera-horizonte.png'); background-size:560px 64px; background-position:left top; background-repeat:no-repeat; font-size:0; line-height:0;">&nbsp;</td>
+        </tr>
+        <!-- Cuerpo: el planeta de luz -->
+        <tr>
+          <td style="padding:4px 28px 18px; font-family:-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; color:#0a1834;">
+            <h1 style="margin:0 0 12px; font-size:23px; line-height:1.25; color:#0a1834;">Hola{{ if .Data.nombre }}, {{ .Data.nombre }}{{ end }}</h1>
+            <p style="margin:0 0 22px; font-size:15.5px; line-height:1.6; color:#3a4966;">Recibimos una solicitud para cambiar la contrase&#241;a de tu cuenta del portal (<b style="color:#0a1834;">{{ .Email }}</b>). Cr&#233;ala con este bot&#243;n:</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px;">
+              <tr>
+                <td style="border-radius:10px; background-color:#1167e8; background-image:linear-gradient(#1167e8, #1167e8);">
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block; padding:14px 26px; font-size:15.5px; font-weight:700; color:#ffffff; text-decoration:none; border-radius:10px;"><span class="gmail-blend-screen" style="display:inline-block;"><span class="gmail-blend-difference" style="display:inline-block;">Crear nueva contrase&#241;a</span></span></a>
+                </td>
+              </tr>
+            </table>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 18px;">
+              <tr>
+                <td style="padding:12px 14px; border-radius:10px; background:#f3f6fb; border:1px solid #d6dfee; font-size:13.5px; line-height:1.55; color:#3a4966;">
+                  <b style="color:#0a1834;">&#191;No la pediste t&#250;?</b> Ignora este correo: tu contrase&#241;a actual sigue funcionando y nadie puede cambiarla sin este enlace.
+                </td>
+              </tr>
+            </table>
+            <p style="margin:0 0 8px; font-size:12.5px; line-height:1.5; color:#6b7a97;">El enlace vence pronto.</p>
+            <p style="margin:0; font-size:12.5px; line-height:1.5; color:#6b7a97;">&#191;El bot&#243;n no abre? Copia este enlace en tu navegador:<br><span style="word-break:break-all; color:#1167e8;">{{ .ConfirmationURL }}</span></p>
+          </td>
+        </tr>
+        <!-- Pie: la parte de abajo del planeta (transparente arriba, toma el color del cuerpo) -->
+        <tr>
+          <td height="64" bgcolor="#ffffff" style="height:64px; background-color:#ffffff; background-image:url('https://awrisecr.com/correo/pie-horizonte-v2.png'); background-size:560px 64px; background-position:left top; background-repeat:no-repeat; font-size:0; line-height:0;">&nbsp;</td>
+        </tr>
+        <!-- El espacio con los datos de contacto (texto blanco protegido para el modo oscuro de Gmail) -->
+        <tr>
+          <!-- El azul va como degradado de un solo color: Gmail no invierte los degradados, as&#237; queda oscuro aunque el texto ocupe m&#225;s l&#237;neas -->
+          <td bgcolor="#061633" style="background-color:#061633; background-image:linear-gradient(#061633, #061633); padding:0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td align="center" style="background-image:url('https://awrisecr.com/correo/pie-espacio-v2.png'); background-size:560px auto; background-position:left top; background-repeat:no-repeat; padding:14px 28px 26px; font-family:-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; text-align:center; color:#ffffff;">
+            <div class="gmail-blend-screen"><div class="gmail-blend-difference">
+              <div style="font-size:13.5px; line-height:1.6; color:#ffffff;">&#191;Dudas? Escr&#237;benos por WhatsApp al <b style="white-space:nowrap;">+506 8584-7369</b> o ll&#225;manos al <b style="white-space:nowrap;">+506 8795-2070</b>.</div>
+              <div style="margin-top:10px; font-size:12px; line-height:1.55; color:#ffffff;">Este correo es del portal de clientes de AW-RiseCR.</div>
+              <div style="margin-top:8px; font-size:12px; line-height:1.55; color:#ffffff;"><a href="https://awrisecr.com" style="color:#ffffff; text-decoration:underline;">awrisecr.com</a> &#183; Santa Cruz, Guanacaste</div>
+            </div></div>
+          </td>
+            </tr></table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

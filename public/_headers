@@ -1,0 +1,9 @@
+# Encabezados de seguridad del portal de clientes (Cloudflare Workers static assets)
+/portal/*
+  X-Robots-Tag: noindex, nofollow
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://gppltlberzswfufgrhif.supabase.co wss://gppltlberzswfufgrhif.supabase.co https://cdn.jsdelivr.net; img-src 'self' data: blob: https://gppltlberzswfufgrhif.supabase.co; style-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  Cache-Control: no-store

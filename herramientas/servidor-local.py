@@ -10,6 +10,11 @@ class Manejador(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):
         super().__init__(*a, directory=str(RAIZ), **k)
 
+    def end_headers(self):
+        # Sin caché: al recargar siempre se ve la última versión de lo que se está editando
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def send_head(self):
         ruta = self.path.split("?")[0].split("#")[0]
         if ruta != "/" and "." not in ruta.rsplit("/", 1)[-1] and (RAIZ / (ruta.strip("/") + ".html")).exists():

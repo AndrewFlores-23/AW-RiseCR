@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#061633">
+<title>Portal · AW-RiseCR</title>
+<link rel="icon" href="/aw-rise-favicon.png">
+<link rel="stylesheet" href="/portal/portal.css">
+<script type="module" src="/portal/app.js"></script>
+</head>
+<body>
+
+<div class="carga" id="carga" role="status" aria-label="Cargando"><i></i></div>
+
+<!-- ===== Acceso ===== -->
+<main class="acceso" id="acceso" hidden>
+  <div class="acceso-caja">
+    <div class="acceso-marca"><i aria-hidden="true"></i><div><b>AW-RiseCR</b><small>Portal de clientes</small></div></div>
+
+    <form class="formulario" id="form-entrar" novalidate>
+      <h1>Entrar al portal</h1>
+      <p>Usa el correo y la contraseña de tu cuenta.</p>
+      <div class="campo"><label for="entrar-correo">Correo</label><input id="entrar-correo" type="email" autocomplete="username" required></div>
+      <div class="campo"><label for="entrar-clave">Contraseña</label><input id="entrar-clave" type="password" autocomplete="current-password" required></div>
+      <button class="boton primario ancho" type="submit">Entrar</button>
+      <button class="enlace" type="button" data-ir-form="form-recuperar">¿Olvidaste tu contraseña?</button>
+      <div class="aviso" hidden></div>
+    </form>
+
+    <form class="formulario" id="form-recuperar" novalidate hidden>
+      <h1>Recuperar contraseña</h1>
+      <p>Escribe tu correo y te enviamos un enlace para crear una nueva.</p>
+      <div class="campo"><label for="recuperar-correo">Correo</label><input id="recuperar-correo" type="email" autocomplete="username" required></div>
+      <button class="boton primario ancho" type="submit">Enviar enlace</button>
+      <button class="enlace" type="button" data-ir-form="form-entrar">Volver a entrar</button>
+      <div class="aviso" hidden></div>
+    </form>
+
+    <form class="formulario" id="form-clave" novalidate hidden>
+      <h1 id="clave-titulo">Crea tu nueva contraseña</h1>
+      <p>Mínimo 10 caracteres. Usa una frase que recuerdes y que no uses en otro lado.</p>
+      <div class="campo"><label for="clave-nueva">Nueva contraseña</label><input id="clave-nueva" type="password" autocomplete="new-password" minlength="10" required></div>
+      <div class="campo"><label for="clave-repetir">Repítela</label><input id="clave-repetir" type="password" autocomplete="new-password" minlength="10" required></div>
+      <button class="boton primario ancho" type="submit">Guardar y entrar</button>
+      <div class="aviso" hidden></div>
+    </form>
+
+    <form class="formulario" id="form-mfa" novalidate hidden>
+      <h1 id="mfa-titulo">Verificación en dos pasos</h1>
+      <p id="mfa-texto">Abre tu app de autenticación y escribe el código de 6 dígitos.</p>
+      <div class="mfa-qr" id="mfa-qr" hidden>
+        <img id="mfa-imagen" alt="Código QR para tu app de autenticación" width="180" height="180">
+        <p class="dato">¿No puedes escanear? Escribe esta clave en la app:<br><code id="mfa-secreto"></code></p>
+      </div>
+      <div class="campo"><label for="mfa-codigo">Código de 6 dígitos</label><input id="mfa-codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
+      <button class="boton primario ancho" type="submit">Verificar y entrar</button>
+      <button class="enlace" type="button" data-salir>Cerrar sesión</button>
+      <div class="aviso" hidden></div>
+    </form>
+
+    <p class="acceso-pie">Acceso solo por invitación de AW-RiseCR.</p>
+  </div>
+</main>
+
+<!-- ===== Portal ===== -->
+<div class="app" id="app" hidden>
+  <aside class="lateral" aria-label="Secciones">
+    <div class="marca"><i aria-hidden="true"></i><div><b>AW-RiseCR</b><small id="marca-sub">Portal</small></div></div>
+    <nav class="menu" id="menu"></nav>
+    <div class="lateral-pie"><b id="pie-nombre"></b><span id="pie-negocio"></span><br><button class="enlace" type="button" data-salir>Cerrar sesión</button></div>
+  </aside>
+  <main class="contenido"><div class="contenido-ancho" id="vista"></div></main>
+</div>
+
+</body>
+</html>
