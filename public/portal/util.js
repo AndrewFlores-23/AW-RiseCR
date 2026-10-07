@@ -27,6 +27,7 @@ export function icono(nombre) {
     panel: "M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z",
     clientes: "M9 4.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM2.5 20a6.5 6.5 0 0 1 13 0M17 11a3 3 0 1 0 0-6M21.5 20a5 5 0 0 0-4-4.9",
     publicar: "M12 5v14M5 12h14",
+    cuenta: "M12 3.5a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM4.5 20.5a7.5 7.5 0 0 1 15 0",
   };
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 24 24");
@@ -115,4 +116,15 @@ export function filaMovimiento(m) {
     el("div", {}, el("b", {}, m.descripcion || MOVIMIENTO[m.tipo]),
       el("span", { class: "dato" }, `${MOVIMIENTO[m.tipo]} · ${fechaCorta(m.fecha)}${m.vence && m.monto > 0 ? " · vence " + fechaCorta(m.vence) : ""}`)),
     el("span", { class: "mov-monto " + (m.monto > 0 ? "entra" : "sale") }, (m.monto > 0 ? "+" : "") + dinero(m.monto)));
+}
+
+// Pantalla de carga con el logo: estrellas que aparecen y el logo absorbe (estilos en portal.css)
+export function cargador(texto = "Cargando…", { chico = true } = {}) {
+  const estrellas = Array.from({ length: 58 }, () => el("i"));
+  return el("div", { class: "cargador" + (chico ? " chico" : ""), role: "status", "aria-label": texto },
+    el("div", { class: "escenario", "aria-hidden": "true" },
+      el("div", { class: "cielo" }, el("div", {}, estrellas)),
+      el("div", { class: "astro" }, el("div", { class: "logo" }), el("div", { class: "brillo" }))),
+    el("div", { class: "cargador-texto" }, texto),
+    el("div", { class: "cargador-puntos", "aria-hidden": "true" }, el("i"), el("i"), el("i")));
 }

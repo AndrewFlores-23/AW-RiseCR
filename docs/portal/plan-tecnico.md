@@ -106,7 +106,50 @@ Plataforma privada en `awrisecr.com/portal` para Andrew (administrador) y sus cl
   - Generadores: `herramientas/correos/generar-cabecera.py adaptables` y `herramientas/correos/armar-plantillas.py`.
   - Las plantillas de invitación y de recuperar contraseña están pegadas en Supabase. La función `avisar-avance` usa el mismo diseño.
   - Detalle aceptado por Andrew: en modo oscuro del iPhone, la última línea del pie puede quedar sobre un fondo claro.
-- Pendiente: publicación (commit y push con su aprobación) y cambiar la Site URL a producción.
+- **Publicado el 2026-10-06** en https://awrisecr.com/portal/ con el commit ece5a8a. Lleva los encabezados de seguridad activos: CSP, noindex, no-store y DENY.
+  - Antes de publicar se revisaron todas las pantallas con la CSP de producción: sin errores.
+  - El aviso por correo de avances quedó probado de punta a punta. La función limpia la llave de Resend si se guardó mal copiada.
+  - El arreglo de la pantalla Publicar (faltaba exportar `idc`) va incluido.
+- Andrew todavía no lo usa con clientes reales: primero quiere pulir detalles y sumar algunas integraciones.
+- Mejoras del 2026-10-06 (antes de los clientes reales):
+  - **Recorrido de bienvenida** (`public/portal/tour.js`, migración `0013`).
+    - La primera vez que entra un cliente se ilumina una sección a la vez: Inicio, Bitácora, Pagos, Fondo AW, Documentos, Accesos y el botón "¿Cómo funciona el portal?".
+    - Se mueve con Siguiente / Atrás / Saltar, las flechas y Esc.
+    - Se guarda en `perfiles.tour_visto_en` con la función `marcar_tour_visto()`, que solo toca el perfil propio. No se repite en otro dispositivo.
+    - En demo: `?demo=cliente&tour`.
+  - **Pantalla de carga**: estrellas que aparecen alrededor del logo y el logo las absorbe, con el logo flotando, el destello y un brillo que late.
+    - Las posiciones van en `portal.css` (`.cielo i:nth-child(n)`), porque la CSP bloquea los estilos en línea.
+    - Versión grande al abrir y al entrar. Versión chica (`cargador()` en `util.js`) cuando una sección tarda.
+    - Se probó con la CSP de producción: sin bloqueos.
+  - **Portada del recorrido**: logo flotando sobre una malla de conexiones (plexus) y el horizonte del planeta.
+    - La primera vez, la tarjeta se arma en cascada: 72 piezas caen fila por fila y después entra el contenido. Dura 1,2 s.
+    - Las piezas las pone `tour.js` y se quitan al terminar. Con "reducir movimiento" no hay animación.
+  - **Mi cuenta** (menú del cliente y del admin): muestra nombre, correo, negocio y último ingreso, y permite cambiar la contraseña.
+    - Para cambiarla se pide la contraseña actual. Se confirma con una sesión aparte, que se cierra al final, así que no toca la sesión abierta ni la verificación en dos pasos del admin.
+    - Después se usa `updateUser({ password, currentPassword })`. Si Supabase pide volver a autenticarse (sesión de más de 24 horas), se usa la sesión recién confirmada.
+    - Casilla marcada por defecto: cerrar la sesión en los otros dispositivos (`signOut({ scope: "others" })`).
+    - Si el cliente no recuerda la actual, recibe el enlace de recuperación en su correo.
+    - El recorrido de bienvenida tiene un paso para Mi cuenta.
+  - **Entrada más segura** (2026-10-06):
+    - "Mantener la sesión iniciada": con la casilla, la sesión se guarda 30 días en `localStorage`. Si no se marca, vive en `sessionStorage` y se cierra al cerrar la pestaña.
+      - La fecha límite va en `aw-recordar-hasta`. Al vencer, se cierra la sesión también en el servidor.
+    - Freno de intentos en el navegador para la entrada, el código de dos pasos y la contraseña actual de Mi cuenta. Después de 5 fallos hay que esperar 30 s, y la espera se duplica hasta 15 min. Sobrevive a recargar la página.
+    - "Enviar enlace" de recuperación: un minuto de espera antes de reenviar.
+    - Captcha de Cloudflare Turnstile (`captcha.js`) en la entrada, la recuperación y Mi cuenta. Casi siempre es invisible y Supabase lo verifica en su servidor.
+      - Se activa con `TURNSTILE_SITEKEY` en `config.js`. La secret key va solo en Supabase.
+      - La CSP permite `challenges.cloudflare.com` (script y frame).
+      - En demo: `?captcha=si` o `?captcha=reto`, con las llaves de prueba públicas de Cloudflare.
+    - Límite de solicitudes a la base de datos (migración `0014`, `limite.revisar()` como pre-request de PostgREST): 300 escrituras cada 5 min por usuario y 30 por IP sin sesión. Al pasar el tope responde 429.
+      - Las lecturas no se pueden contar ahí, porque son de solo lectura. Las protegen RLS y el `statement_timeout` de 8 s.
+      - Las escrituras que fallan no suman, porque se deshace todo.
+      - Limpieza cada 10 min (cron `portal-limpiar-limites`).
+    - Revisión de inyección SQL: todo va por supabase-js con parámetros. Las funciones RPC no arman SQL con texto del usuario (el único `execute format` está en migraciones, con nombres de tabla fijos). No hay `innerHTML`.
+      - Sin sesión no se puede leer ni escribir ninguna tabla (probado con la API publicada).
+    - Supabase ya trae límites de entrada por IP. El bloqueo por cuenta (hook de verificación de contraseña) y la protección contra contraseñas filtradas son de planes de pago.
+- Pendiente antes de los clientes reales:
+  - ~~Cambiar la Site URL de Supabase~~: hecho el 2026-10-06 (`https://awrisecr.com/portal/`).
+  - Borrar el "Cliente de prueba" y su usuario.
+  - Hacer un respaldo semanal.
   - Ojo: el commit local fb02bf9 (propuestas de LAHL y de Kenneth) no debe subirse al repositorio público. Andrew lo pidió así; hay que decidir qué hacer con él antes del push del portal.
   - Script de respaldos cifrados.
   - Publicación: commit y push con aprobación de Andrew, y Site URL a producción.
@@ -124,6 +167,7 @@ Plataforma privada en `awrisecr.com/portal` para Andrew (administrador) y sus cl
 - Solo el usuario maestro (Andrew, rol `admin`) crea usuarios desde el panel. Una Edge Function con la llave de servicio verifica que quien llama sea admin y envía la invitación.
 - Verificación en dos pasos (TOTP) obligatoria para el admin.
 - Pantalla de entrada: correo, contraseña, "Entrar" y "¿Olvidaste tu contraseña?".
+- Dentro del portal, "Mi cuenta" permite cambiar la contraseña pidiendo la actual.
 - Correos (con logo, en español): invitación para crear contraseña, restablecer contraseña (vence en 1 hora, un solo uso), confirmación de cambio de correo, bienvenida, aviso de avance nuevo y recordatorio de cobro.
 - El admin puede desactivar a un usuario (bloqueo inmediato).
 - Límite de intentos de entrada fallidos (protección de Supabase Auth).

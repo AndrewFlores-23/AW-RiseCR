@@ -13,7 +13,10 @@
 </head>
 <body>
 
-<div class="carga" id="carga" role="status" aria-label="Cargando"><i></i></div>
+<div class="carga" id="carga" role="status" aria-label="Cargando tu portal">
+  <div class="cargador"><div class="escenario" aria-hidden="true"><div class="cielo"><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="astro"><div class="logo"></div><div class="brillo"></div></div></div>
+    <div class="cargador-texto">Cargando tu portal</div><div class="cargador-puntos" aria-hidden="true"><i></i><i></i><i></i></div></div>
+</div>
 
 <!-- ===== Acceso ===== -->
 <main class="acceso" id="acceso" hidden>
@@ -23,8 +26,10 @@
     <form class="formulario" id="form-entrar" novalidate>
       <h1>Entrar al portal</h1>
       <p>Usa el correo y la contraseña de tu cuenta.</p>
-      <div class="campo"><label for="entrar-correo">Correo</label><input id="entrar-correo" type="email" autocomplete="username" required></div>
-      <div class="campo"><label for="entrar-clave">Contraseña</label><input id="entrar-clave" type="password" autocomplete="current-password" required></div>
+      <div class="campo"><label for="entrar-correo">Correo</label><input id="entrar-correo" type="email" autocomplete="username" maxlength="254" required></div>
+      <div class="campo"><label for="entrar-clave">Contraseña</label><input id="entrar-clave" type="password" autocomplete="current-password" maxlength="128" required></div>
+      <label class="casilla recordar"><input id="entrar-recordar" type="checkbox"><span>Mantener la sesión iniciada<small>Durante 30 días en este dispositivo. No lo marques en una computadora compartida.</small></span></label>
+      <div class="captcha" data-captcha></div>
       <button class="boton primario ancho" type="submit">Entrar</button>
       <button class="enlace" type="button" data-ir-form="form-recuperar">¿Olvidaste tu contraseña?</button>
       <div class="aviso" hidden></div>
@@ -33,7 +38,8 @@
     <form class="formulario" id="form-recuperar" novalidate hidden>
       <h1>Recuperar contraseña</h1>
       <p>Escribe tu correo y te enviamos un enlace para crear una nueva.</p>
-      <div class="campo"><label for="recuperar-correo">Correo</label><input id="recuperar-correo" type="email" autocomplete="username" required></div>
+      <div class="campo"><label for="recuperar-correo">Correo</label><input id="recuperar-correo" type="email" autocomplete="username" maxlength="254" required></div>
+      <div class="captcha" data-captcha></div>
       <button class="boton primario ancho" type="submit">Enviar enlace</button>
       <button class="enlace" type="button" data-ir-form="form-entrar">Volver a entrar</button>
       <div class="aviso" hidden></div>
@@ -42,8 +48,8 @@
     <form class="formulario" id="form-clave" novalidate hidden>
       <h1 id="clave-titulo">Crea tu nueva contraseña</h1>
       <p>Mínimo 10 caracteres. Usa una frase que recuerdes y que no uses en otro lado.</p>
-      <div class="campo"><label for="clave-nueva">Nueva contraseña</label><input id="clave-nueva" type="password" autocomplete="new-password" minlength="10" required></div>
-      <div class="campo"><label for="clave-repetir">Repítela</label><input id="clave-repetir" type="password" autocomplete="new-password" minlength="10" required></div>
+      <div class="campo"><label for="clave-nueva">Nueva contraseña</label><input id="clave-nueva" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>
+      <div class="campo"><label for="clave-repetir">Repítela</label><input id="clave-repetir" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>
       <button class="boton primario ancho" type="submit">Guardar y entrar</button>
       <div class="aviso" hidden></div>
     </form>
@@ -70,7 +76,7 @@
   <aside class="lateral" aria-label="Secciones">
     <div class="marca"><i aria-hidden="true"></i><div><b>AW-RiseCR</b><small id="marca-sub">Portal</small></div></div>
     <nav class="menu" id="menu"></nav>
-    <div class="lateral-pie"><b id="pie-nombre"></b><span id="pie-negocio"></span><br><button class="enlace" type="button" data-salir>Cerrar sesión</button></div>
+    <div class="lateral-pie"><b id="pie-nombre"></b><span id="pie-negocio"></span><br><button class="enlace ayuda" type="button" data-ayuda hidden>¿Cómo funciona el portal?</button><br><button class="enlace" type="button" data-salir>Cerrar sesión</button></div>
   </aside>
   <main class="contenido"><div class="contenido-ancho" id="vista"></div></main>
 </div>
