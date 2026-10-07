@@ -5,6 +5,11 @@ Uso:
   python3 respaldar.py                         saca un respaldo nuevo, lo cifra y lo sube a GitHub
   python3 respaldar.py restaurar               descifra el último respaldo en una carpeta local
   python3 respaldar.py restaurar 2026-10-06_0930   descifra ese respaldo
+  python3 respaldar.py recuperar [AAAA-MM-DD_HHMM] [--cliente "Nombre"]
+                                               vuelve a cargar en Supabase lo que falte (todo o un cliente),
+                                               con sus mismos ids, usuarios y archivos
+  python3 respaldar.py eliminar "Nombre"       borra un cliente completo (datos, usuarios, archivos y su actividad);
+                                               pide escribir el nombre para confirmar
 
 Te pide, sin mostrarlos en pantalla:
   - la llave secreta de Supabase "respaldos" (Project Settings → API Keys → Secret keys)
@@ -44,6 +49,8 @@ TABLAS = {
     "bitacora": "id", "documentos": "id", "adjuntos": "id", "cobros": "id", "fondo_movimientos": "id",
     "accesos": "id", "ajustes": "clave", "actividad": "id",
 }
+# Tablas que cuelgan de un cliente (columna negocio_id)
+POR_NEGOCIO = ["contactos", "servicios", "proyectos", "bitacora", "documentos", "adjuntos", "cobros", "fondo_movimientos", "accesos"]
 VERIFICADOR = "AW-RiseCR · respaldos del portal · v1"
 # En GitHub Actions la llave y la frase vienen de los secrets del repositorio privado (nunca del código ni del registro)
 AUTOMATICO = bool(os.environ.get("AW_SUPABASE_LLAVE", "").strip() and os.environ.get("AW_RESPALDOS_FRASE", "").strip())
@@ -134,7 +141,7 @@ def limpiar_portapapeles():
 
 def pedir_secreto(que, revisar):
     """Pide copiar el dato en Bitwarden y presionar Enter. Si se pega algo, también sirve (no se muestra)."""
-    for intento in range(3):
+    for intento in range(6):
         escrito = getpass.getpass(f"Copia {que} en Bitwarden y presiona Enter aquí (no hace falta pegar): ").strip()
         portapapeles = (leer_portapapeles() or "").strip()
         motivo = None
@@ -146,7 +153,7 @@ def pedir_secreto(que, revisar):
                 limpiar_portapapeles()
                 return candidato
         avisar("  " + (motivo or "No encontré nada copiado. En Bitwarden toca el botón de copiar y vuelve a presionar Enter aquí."))
-    salir("No se recibió el dato. No se guardó nada.")
+    salir("No se recibió el dato. No se guardó nada.\n  Si te quedó algo copiado, NO lo pegues en la Terminal: vuelve a correr el programa.")
 
 
 def variantes_llave(bruto):
@@ -214,7 +221,8 @@ def llave_de_entorno():
 def pedir_frase(llave=None):
     def revisar(v):
         if v.startswith("sb_") or v == llave:
-            return "Lo copiado es una llave, no la frase. Copia \"Respaldos del portal · frase\"."
+            return ("Eso es la llave otra vez. Ahora copia la FRASE: en Bitwarden abre \"Respaldos del portal · frase\" "
+                    "y toca copiar en el campo de contraseña (las 14 palabras).")
         # Sirve una frase de varias palabras (16+ caracteres) o una contraseña al azar de Bitwarden
         # (12+ caracteres mezclando mayúsculas, minúsculas, números o símbolos)
         tipos = sum([any(c.islower() for c in v), any(c.isupper() for c in v), any(c.isdigit() for c in v), any(not c.isalnum() for c in v)])
@@ -230,16 +238,19 @@ class Supabase:
     def __init__(self, llave):
         self.llave = llave
 
-    def pedir(self, metodo, ruta, cuerpo=None):
-        datos = json.dumps(cuerpo).encode() if cuerpo is not None else None
+    def pedir(self, metodo, ruta, cuerpo=None, datos=None, tipo="application/json", extra=None, permitir=()):
+        if cuerpo is not None:
+            datos = json.dumps(cuerpo).encode()
         req = urllib.request.Request(URL + ruta, data=datos, method=metodo, headers={
             # Las llaves nuevas (sb_secret_…) no son JWT: van solo en "apikey", nunca como "Authorization: Bearer"
-            "apikey": self.llave, "Content-Type": "application/json", "Accept": "application/json",
+            "apikey": self.llave, "Content-Type": tipo, "Accept": "application/json", **(extra or {}),
         })
         try:
             with urllib.request.urlopen(req, timeout=60) as r:
                 return r.read()
         except urllib.error.HTTPError as e:
+            if e.code in permitir:
+                return None
             detalle = e.read().decode(errors="ignore")[:200]
             if e.code in (401, 403):
                 salir("Supabase rechazó la llave secreta. Revisa que copiaste la llave \"respaldos\" completa.")
@@ -284,6 +295,17 @@ class Supabase:
     def descargar(self, ruta):
         return self.pedir("GET", f"/storage/v1/object/{BUCKET}/" + urllib.parse.quote(ruta))
 
+    def leer(self, ruta):
+        return json.loads(self.pedir("GET", ruta) or b"null")
+
+    def usuario(self, uid):
+        r = self.pedir("GET", f"/auth/v1/admin/users/{uid}", permitir=(404,))
+        return json.loads(r) if r else None
+
+    def subir(self, ruta, datos, tipo):
+        self.pedir("POST", f"/storage/v1/object/{BUCKET}/" + urllib.parse.quote(ruta), datos=datos,
+                   tipo=tipo or "application/octet-stream", extra={"x-upsert": "false"})
+
 
 # ---------- Repositorio privado ----------
 def git(*args, revisar=True):
@@ -302,7 +324,7 @@ def preparar_repositorio():
         if r.returncode != 0:
             salir("No se pudo clonar aw-portal-respaldos: " + r.stderr.strip())
     if git("rev-parse", "--verify", "HEAD", revisar=False).returncode == 0:
-        git("pull", "--rebase", "--quiet")
+        git("pull", "--rebase", "--autostash", "--quiet")  # si hay cambios locales sin guardar, los aparta y los devuelve
     (CARPETA / "respaldos").mkdir(exist_ok=True)
     (CARPETA / "archivos").mkdir(exist_ok=True)
     gitattributes = CARPETA / ".gitattributes"
@@ -344,6 +366,19 @@ Si una corrida falla, GitHub avisa por correo. Para correrlo a mano: pestaña Ac
 
 Deja los datos descifrados en `aw-portal-restaurado-<fecha>/`, fuera de este repositorio. Bórrala al terminar.
 
+## Recuperar un cliente borrado (o todo) en Supabase
+
+    python3 AW-RiseCR/herramientas/respaldos-portal/respaldar.py recuperar [AAAA-MM-DD_HHMM] --cliente "Nombre"
+
+Vuelve a cargar lo que falte con sus mismos ids: usuarios (sin contraseña: entran con "¿Olvidaste tu contraseña?"),
+datos y archivos. Lo que ya existe no se toca. Sin `--cliente` recupera todo lo que falte.
+
+## Eliminar un cliente completo
+
+    python3 AW-RiseCR/herramientas/respaldos-portal/respaldar.py eliminar "Nombre"
+
+Borra sus datos, usuarios, archivos y actividad. Pide escribir el nombre para confirmar.
+
 ## Recuperar el portal en un proyecto nuevo de Supabase
 
 1. Aplicar las migraciones de `AW-RiseCR/supabase/migrations/` en orden.
@@ -367,7 +402,7 @@ def respaldar():
         salir("Faltan los secrets AW_SUPABASE_LLAVE y AW_RESPALDOS_FRASE en el repositorio aw-portal-respaldos.")
     else:
         llave = pedir_llave()
-        avisar("  ✓ Llave recibida.")
+        avisar("  ✓ Llave recibida. Ahora la frase (es otro dato de Bitwarden, no la llave).")
         frase = pedir_frase(llave)
         revisar_frase(frase, nueva_permitida=True)
 
@@ -463,11 +498,174 @@ def restaurar(sello=None):
     avisar("  Contiene datos privados de clientes: bórralo cuando termines.")
 
 
+# ---------- Eliminar un cliente completo ----------
+def lotes(lista, tamano):
+    for i in range(0, len(lista), tamano):
+        yield lista[i:i + tamano]
+
+
+def buscar_cliente(negocios, nombre):
+    elegido = [n for n in negocios if n["nombre"].strip().lower() == nombre.strip().lower()]
+    if not elegido:
+        salir(f"No hay un cliente llamado \"{nombre}\". Clientes: " + (", ".join(n["nombre"] for n in negocios) or "(ninguno)"))
+    return elegido[0]
+
+
+def eliminar(nombre):
+    avisar("Eliminar un cliente del portal AW-RiseCR\n")
+    preparar_repositorio()  # para mostrar la fecha real del último respaldo (los automáticos están en GitHub)
+    sb = Supabase(pedir_llave())
+    n = buscar_cliente(sb.leer("/rest/v1/negocios?select=id,nombre"), nombre)
+    nid = n["id"]
+    filas = {t: sb.leer(f"/rest/v1/{t}?select={'negocio_id' if t == 'contactos' else 'id'}&negocio_id=eq.{nid}") for t in POR_NEGOCIO}
+    perfiles = sb.leer(f"/rest/v1/perfiles?select=id,nombre,rol&negocio_id=eq.{nid}")
+    if any(p["rol"] == "admin" for p in perfiles):
+        salir("Ese cliente tiene una cuenta de administrador vinculada. No se borró nada.")
+    archivos = [a["ruta"] for a in sb.archivos(nid + "/")]
+    ids = sorted({nid, *(p["id"] for p in perfiles), *(f.get("id") or f.get("negocio_id") for t in filas for f in filas[t])})
+
+    ultimo = sorted((CARPETA / "respaldos").glob("*.datos.enc"))[-1:] if (CARPETA / "respaldos").exists() else []
+    avisar(f"  Cliente: {n['nombre']}")
+    avisar(f"  Se borra: {len(filas['proyectos'])} proyectos · {len(filas['bitacora'])} entradas de bitácora · {len(filas['cobros'])} cobros · "
+           f"{len(filas['documentos'])} documentos · {len(filas['accesos'])} accesos · {len(archivos)} archivos · su contacto, servicios, Fondo AW y actividad")
+    avisar("  Usuarios que pierden el acceso: " + (", ".join(p["nombre"] or p["id"] for p in perfiles) or "(ninguno)"))
+    avisar(f"  Último respaldo en esta computadora: {ultimo[0].name.split('.')[0] if ultimo else '(ninguno)'}"
+           "  ← si no es de hoy, saca un respaldo antes de seguir.")
+    escrito = input(f"\n  Esto no se puede deshacer (solo se recupera con un respaldo).\n  Para borrarlo, escribe el nombre del cliente ({n['nombre']}) y presiona Enter: ")
+    if escrito.strip() != n["nombre"].strip():
+        salir("El nombre no coincide. No se borró nada.")
+
+    # 1) El cliente y todo lo suyo (las tablas se borran en cascada)  2) sus usuarios (y sus perfiles)
+    # 3) sus archivos  4) su actividad, incluida la que dejó este mismo borrado
+    sb.pedir("DELETE", f"/rest/v1/negocios?id=eq.{nid}")
+    for p in perfiles:
+        sb.pedir("DELETE", f"/auth/v1/admin/users/{p['id']}", permitir=(404,))
+    for lote in lotes(archivos, 100):
+        sb.pedir("DELETE", f"/storage/v1/object/{BUCKET}", {"prefixes": lote})
+    for lote in lotes(ids, 40):
+        sb.pedir("DELETE", "/rest/v1/actividad?registro=in.(" + ",".join(lote) + ")")
+    avisar(f"\n✓ {n['nombre']} eliminado: {len(perfiles)} usuarios y {len(archivos)} archivos borrados.")
+
+
+# ---------- Recuperar (volver a cargar en Supabase lo que falte) ----------
+def elegir_respaldo(sello=None):
+    lista = sorted((CARPETA / "respaldos").glob("*.datos.enc"))
+    if not lista:
+        salir("No hay respaldos todavía.")
+    elegido = next((p for p in lista if p.name.startswith(sello)), None) if sello else lista[-1]
+    if not elegido:
+        salir(f"No hay un respaldo {sello}. Disponibles: " + ", ".join(p.name.split(".")[0] for p in lista[-5:]))
+    return elegido
+
+
+def abrir_respaldo(archivo, frase, tmp):
+    """Descifra un respaldo en una carpeta temporal y devuelve sus tablas, usuarios y manifiesto."""
+    paquete = tmp / "datos.tar.gz"
+    if not descifrar(archivo, paquete, frase):
+        salir("No se pudo descifrar el respaldo.")
+    with tarfile.open(paquete, "r:gz") as tar:
+        for miembro in tar.getmembers():
+            if miembro.name.startswith("/") or ".." in Path(miembro.name).parts:
+                salir("El respaldo tiene rutas sospechosas. No se abrió.")
+        tar.extractall(tmp)
+    base = tmp / archivo.name.split(".")[0]
+    leer = lambda nombre: json.loads((base / f"{nombre}.json").read_text(encoding="utf-8")) if (base / f"{nombre}.json").exists() else []
+    return {t: leer(t) for t in TABLAS}, leer("usuarios"), json.loads((base / "manifiesto.json").read_text(encoding="utf-8"))
+
+
+def recuperar(sello=None, cliente=None):
+    avisar("Recuperar desde un respaldo · portal AW-RiseCR\n")
+    openssl()
+    preparar_repositorio()  # trae los respaldos automáticos más recientes
+    elegido = elegir_respaldo(sello)
+    avisar(f"  Respaldo: {elegido.name.split('.')[0]}" + (f" · cliente: {cliente}" if cliente else " · todo"))
+    llave = pedir_llave()
+    avisar("  ✓ Llave recibida. Ahora la frase (es otro dato de Bitwarden, no la llave).")
+    frase = pedir_frase(llave)
+    revisar_frase(frase, nueva_permitida=False)
+    sb = Supabase(llave)
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tablas, usuarios, manifiesto = abrir_respaldo(elegido, frase, Path(tmp))
+        if cliente:
+            negocio = buscar_cliente(tablas["negocios"], cliente)
+            nid = negocio["id"]
+            datos = {"negocios": [negocio], "perfiles": [p for p in tablas["perfiles"] if p.get("negocio_id") == nid]}
+            for t in POR_NEGOCIO:
+                datos[t] = [f for f in tablas[t] if f.get("negocio_id") == nid]
+            ids = {nid, *(p["id"] for p in datos["perfiles"]), *(f.get("id") or f.get("negocio_id") for t in POR_NEGOCIO for f in datos[t])}
+            datos["actividad"] = [a for a in tablas["actividad"] if a.get("registro") in ids]
+            archivos = [a for a in manifiesto["archivos"] if a["ruta"].split("/")[0] == nid]
+        else:
+            datos = {t: tablas[t] for t in TABLAS}
+            archivos = manifiesto["archivos"]
+
+        de_perfiles = {p["id"] for p in datos["perfiles"]}
+        faltan_usuarios = [u for u in usuarios if u["id"] in de_perfiles and sb.usuario(u["id"]) is None]
+        existentes = {a["ruta"] for a in sb.archivos()}
+        faltan_archivos = [a for a in archivos if a["ruta"] not in existentes]
+        avisar(f"  En el respaldo: {len(datos['negocios'])} clientes · {len(datos['proyectos'])} proyectos · {len(datos['bitacora'])} entradas · "
+               f"{len(datos['cobros'])} cobros · {len(datos['actividad'])} registros de actividad")
+        avisar(f"  Faltan en Supabase: {len(faltan_usuarios)} usuarios · {len(faltan_archivos)} archivos (las filas que ya existen no se tocan)")
+        if input("\n  ¿Recuperar? Escribe si y presiona Enter: ").strip().lower() not in ("si", "sí", "s"):
+            salir("No se cambió nada.")
+
+        # 1) Usuarios, con su mismo id (sin contraseña: la crean de nuevo con "¿Olvidaste tu contraseña?")
+        recreados = []
+        for u in faltan_usuarios:
+            cuerpo = {"id": u["id"], "email": u["email"], "email_confirm": bool(u.get("email_confirmed_at")), "user_metadata": u.get("user_metadata") or {}}
+            if (u.get("banned_until") or "") > datetime.datetime.now(datetime.timezone.utc).isoformat():
+                cuerpo["ban_duration"] = "876000h"  # seguía desactivado
+            nuevo = json.loads(sb.pedir("POST", "/auth/v1/admin/users", cuerpo))
+            if nuevo.get("id") != u["id"]:
+                sb.pedir("DELETE", f"/auth/v1/admin/users/{nuevo.get('id')}", permitir=(404,))
+                salir("Supabase no permitió recrear el usuario con su mismo id. No se cargaron datos.")
+            recreados.append(u)
+
+        # 2) Datos: solo se agrega lo que falta. Los perfiles van para los usuarios recién recreados o los que
+        #    quedaron sin su negocio (su perfil se crea solo al crear el usuario y hay que ponerle los datos del respaldo)
+        if de_perfiles:
+            actuales = {x["id"]: x for x in sb.leer("/rest/v1/perfiles?select=id,negocio_id&id=in.(" + ",".join(sorted(de_perfiles)) + ")")}
+            nuevos = {u["id"] for u in recreados}
+            datos["perfiles"] = [x for x in datos["perfiles"] if x["id"] in nuevos or actuales.get(x["id"], {}).get("negocio_id") != x.get("negocio_id")]
+        # Referencias a clientes o usuarios que ya no existen quedan vacías (no frenan la recuperación)
+        hay_negocios = {x["id"] for x in sb.leer("/rest/v1/negocios?select=id")} | {x["id"] for x in datos["negocios"]}
+        hay_usuarios = {x["id"] for x in sb.usuarios()}
+        for tabla, columna, existen in (("negocios", "referido_por", hay_negocios), ("fondo_movimientos", "referido_negocio_id", hay_negocios),
+                                        ("bitacora", "autor", hay_usuarios), ("bitacora", "aprobado_por", hay_usuarios),
+                                        ("fondo_movimientos", "creado_por", hay_usuarios)):
+            for fila in datos.get(tabla, []):
+                if fila.get(columna) and fila[columna] not in existen:
+                    fila[columna] = None
+        agregado = json.loads(sb.pedir("POST", "/rest/v1/rpc/restaurar_respaldo", {"p_datos": datos}))
+
+        # 3) Archivos, a su misma ruta
+        for a in faltan_archivos:
+            plano = Path(tmp) / "archivo"
+            if not descifrar(CARPETA / "archivos" / a["cifrado"], plano, frase):
+                salir(f"No se pudo descifrar el archivo {a['ruta']}.")
+            sb.subir(a["ruta"], plano.read_bytes(), a.get("tipo"))
+            plano.unlink()
+
+    avisar("\n✓ Recuperado: " + ", ".join(f"{t} {n}" for t, n in agregado.items() if n) + f" · {len(recreados)} usuarios · {len(faltan_archivos)} archivos")
+    if recreados:
+        avisar("  Usuarios recreados (entran con \"¿Olvidaste tu contraseña?\" o con una invitación nueva):")
+        for u in recreados:
+            avisar(f"    · {u['email']}")
+
+
 if __name__ == "__main__":
     try:
-        if len(sys.argv) > 1 and sys.argv[1] == "restaurar":
-            restaurar(sys.argv[2] if len(sys.argv) > 2 else None)
-        elif len(sys.argv) == 1:
+        args = sys.argv[1:]
+        if args and args[0] == "restaurar":
+            restaurar(args[1] if len(args) > 1 else None)
+        elif args and args[0] == "recuperar":
+            cliente = args[args.index("--cliente") + 1] if "--cliente" in args and args.index("--cliente") + 1 < len(args) else None
+            sello = next((a for a in args[1:] if a[:4].isdigit() and a != cliente), None)
+            recuperar(sello, cliente)
+        elif args and args[0] == "eliminar" and len(args) > 1:
+            eliminar(" ".join(args[1:]))
+        elif not args:
             respaldar()
         else:
             print(__doc__)

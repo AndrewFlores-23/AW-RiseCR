@@ -155,7 +155,7 @@ Plataforma privada en `awrisecr.com/portal` para Andrew (administrador) y sus cl
     - En demo: `?demo=cliente&acceso` abre directo en la entrada.
 - Pendiente antes de los clientes reales:
   - ~~Cambiar la Site URL de Supabase~~: hecho el 2026-10-06 (`https://awrisecr.com/portal/`).
-  - Borrar el "Cliente de prueba" y su usuario.
+  - ~~Borrar el cliente de prueba y su usuario~~: hecho el 2026-10-07 (quedó limpio, solo el administrador).
   - Hacer un respaldo semanal.
   - Ojo: el commit local fb02bf9 (propuestas de LAHL y de Kenneth) no debe subirse al repositorio público. Andrew lo pidió así; hay que decidir qué hacer con él antes del push del portal.
   - Script de respaldos cifrados.
@@ -202,7 +202,12 @@ Además: RLS en todas las tablas (cada cliente solo ve lo de su negocio), regist
   - El programa se toma del repositorio del sitio (solo `herramientas/respaldos-portal` y las migraciones).
 - **A mano:** `python3 respaldar.py` lee la llave y la frase del portapapeles (copiadas desde Bitwarden). Sirve antes de cambios grandes.
 - Para abrir un respaldo: `python3 respaldar.py restaurar [AAAA-MM-DD_HHMM]`.
-- Pendiente: prueba de restauración en un proyecto de prueba.
+- **Recuperar en Supabase:** `python3 respaldar.py recuperar [AAAA-MM-DD_HHMM] [--cliente "Nombre"]`.
+  - Recrea los usuarios que faltan con su mismo id (sin contraseña: entran con "¿Olvidaste tu contraseña?").
+  - Carga las filas que faltan con `restaurar_respaldo()` (migración `0015`, solo con la llave de servicio). Va en orden de dependencias, apaga los disparadores mientras carga y las llaves foráneas sí se revisan.
+  - Sube los archivos a su misma ruta. Lo que ya existe no se toca.
+- **Eliminar un cliente:** `python3 respaldar.py eliminar "Nombre"`. Borra datos, usuarios, archivos y actividad, y pide escribir el nombre para confirmar.
+- **Prueba de recuperación hecha el 2026-10-07** con el cliente de prueba "Andrewtech": se eliminó, se recuperó del respaldo automático y todas las tablas, el usuario y el archivo volvieron idénticos (comparado con huellas md5 tomadas antes). Luego se eliminó para dejar el portal limpio.
 
 ## Modelo de datos
 
