@@ -11,6 +11,9 @@ Te pide, sin mostrarlos en pantalla:
   - la frase de cifrado de los respaldos (guárdala en Bitwarden)
 Ninguna de las dos se guarda en disco ni en el repositorio. Sin la frase, los respaldos no se pueden abrir.
 
+Respaldo automático: GitHub Actions lo corre cada semana en el repositorio privado (.github/workflows/respaldo.yml).
+Ahí la llave y la frase llegan desde los secrets del repositorio, en AW_SUPABASE_LLAVE y AW_RESPALDOS_FRASE.
+
 Solo usa lo que ya trae la computadora: Python 3 y OpenSSL (en Windows, el que viene con Git).
 """
 import datetime
@@ -42,6 +45,9 @@ TABLAS = {
     "accesos": "id", "ajustes": "clave", "actividad": "id",
 }
 VERIFICADOR = "AW-RiseCR · respaldos del portal · v1"
+# En GitHub Actions la llave y la frase vienen de los secrets del repositorio privado (nunca del código ni del registro)
+AUTOMATICO = bool(os.environ.get("AW_SUPABASE_LLAVE", "").strip() and os.environ.get("AW_RESPALDOS_FRASE", "").strip())
+EN_GITHUB = os.environ.get("GITHUB_ACTIONS") == "true"
 ITERACIONES = "600000"
 
 
@@ -195,6 +201,16 @@ def pedir_llave():
     salir("No se recibió una llave válida. No se guardó nada.")
 
 
+def llave_de_entorno():
+    """Respaldo automático: la llave del secret, con las mismas correcciones de copias defectuosas."""
+    bruto = os.environ["AW_SUPABASE_LLAVE"].strip()
+    for llave in variantes_llave(bruto):
+        if llave_funciona(llave):
+            return llave
+    salir("Supabase no acepta la llave del secret AW_SUPABASE_LLAVE. Revisa en GitHub → Settings → Secrets → Actions "
+          "que sea la llave secreta \"respaldos\" de Supabase (empieza con sb_secret_).")
+
+
 def pedir_frase(llave=None):
     def revisar(v):
         if v.startswith("sb_") or v == llave:
@@ -309,7 +325,16 @@ Sin la frase guardada en Bitwarden ("Respaldos del portal · frase") no se puede
 - `archivos/*.enc`: cada captura o documento, cifrado por separado (el nombre no revela el original).
 - `verificador.enc`: confirma que cada respaldo nuevo usa la misma frase.
 
-## Sacar un respaldo (una vez por semana o antes de cambios grandes)
+## Respaldo automático (cada domingo a las 2:00 a. m., hora de Costa Rica)
+
+GitHub Actions corre `.github/workflows/respaldo.yml` con el mismo programa del respaldo a mano.
+Usa dos secrets del repositorio (Settings → Secrets and variables → Actions):
+- `AW_SUPABASE_LLAVE`: la llave secreta "respaldos" de Supabase (empieza con `sb_secret_`).
+- `AW_RESPALDOS_FRASE`: la frase de cifrado (Bitwarden, "Respaldos del portal · frase").
+
+Si una corrida falla, GitHub avisa por correo. Para correrlo a mano: pestaña Actions → "Respaldo semanal del portal" → Run workflow.
+
+## Sacar un respaldo a mano (antes de cambios grandes)
 
     python3 AW-RiseCR/herramientas/respaldos-portal/respaldar.py
 
@@ -333,10 +358,18 @@ def respaldar():
     avisar("Respaldo del portal AW-RiseCR\n")
     openssl()
     preparar_repositorio()
-    llave = pedir_llave()
-    avisar("  ✓ Llave recibida.")
-    frase = pedir_frase(llave)
-    revisar_frase(frase, nueva_permitida=True)
+    if AUTOMATICO:
+        llave = llave_de_entorno()
+        frase = os.environ["AW_RESPALDOS_FRASE"].strip()
+        revisar_frase(frase, nueva_permitida=False)  # tiene que ser la misma frase de los respaldos anteriores
+        avisar("  ✓ Llave y frase recibidas (secrets de GitHub).")
+    elif EN_GITHUB:
+        salir("Faltan los secrets AW_SUPABASE_LLAVE y AW_RESPALDOS_FRASE en el repositorio aw-portal-respaldos.")
+    else:
+        llave = pedir_llave()
+        avisar("  ✓ Llave recibida.")
+        frase = pedir_frase(llave)
+        revisar_frase(frase, nueva_permitida=True)
 
     sb = Supabase(llave)
     ahora = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-6)))  # hora de Costa Rica
@@ -382,7 +415,7 @@ def respaldar():
 
     avisar("\n  Subiendo a GitHub (repositorio privado)…")
     git("add", "-A")
-    git("commit", "-q", "-m", f"Respaldo {ahora.strftime('%Y-%m-%d %H:%M')} (cifrado)")
+    git("commit", "-q", "-m", f"Respaldo {ahora.strftime('%Y-%m-%d %H:%M')} (cifrado{', automático' if AUTOMATICO else ''})")
     git("branch", "-M", "main")
     git("push", "-q", "-u", "origin", "main")
     avisar(f"\n✓ Respaldo {sello} listo y subido cifrado a aw-portal-respaldos.")

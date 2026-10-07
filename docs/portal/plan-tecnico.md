@@ -192,13 +192,17 @@ Plataforma privada en `awrisecr.com/portal` para Andrew (administrador) y sus cl
 
 Además: RLS en todas las tablas (cada cliente solo ve lo de su negocio), registro de actividad, `noindex` y `Disallow: /portal/` en robots.txt, encabezados de seguridad, la llave de servicio nunca en el navegador. Respaldos manuales mediante GitHub mientras se use el plan gratuito (decisión de Andrew, 2026-10-04); pasar a Pro (USD 25/mes) más adelante.
 
-## Respaldos (manuales, en GitHub)
+## Respaldos (automáticos cada semana, en GitHub)
 
 - Repositorio **privado y separado**: `aw-portal-respaldos`. Nunca en `AW-RiseCR`, que es **público**.
-- Script `respaldar` que exporta la base de datos completa (estructura y datos) y descarga los archivos del bucket.
-- Antes de subirlo, el respaldo se **cifra** con una llave que solo tiene Andrew (guardada en Bitwarden). En GitHub queda un archivo ilegible.
-- Se corre a mano (una vez por semana o antes de cambios grandes); un recordatorio programado avisa cada semana.
-- Prueba de restauración en un proyecto de prueba al terminar la Fase 1.
+- Programa `herramientas/respaldos-portal/respaldar.py`: descarga las tablas, los usuarios y los archivos del bucket.
+- Antes de subirlo, el respaldo se **cifra** (AES-256, PBKDF2 de 600.000 vueltas) con una frase que solo tiene Andrew, guardada en Bitwarden. En GitHub queda un archivo ilegible. `verificador.enc` impide subir respaldos con otra frase.
+- **Automático:** GitHub Actions (`.github/workflows/respaldo.yml` en el repositorio privado) lo corre cada domingo a las 2:00 a. m. de Costa Rica, con el mismo programa.
+  - La llave y la frase llegan desde los secrets `AW_SUPABASE_LLAVE` y `AW_RESPALDOS_FRASE`. Si faltan o no sirven, la corrida falla con un mensaje claro y GitHub avisa por correo.
+  - El programa se toma del repositorio del sitio (solo `herramientas/respaldos-portal` y las migraciones).
+- **A mano:** `python3 respaldar.py` lee la llave y la frase del portapapeles (copiadas desde Bitwarden). Sirve antes de cambios grandes.
+- Para abrir un respaldo: `python3 respaldar.py restaurar [AAAA-MM-DD_HHMM]`.
+- Pendiente: prueba de restauración en un proyecto de prueba.
 
 ## Modelo de datos
 
