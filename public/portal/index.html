@@ -18,19 +18,21 @@
     <div class="cargador-texto">Cargando tu portal</div><div class="cargador-puntos" aria-hidden="true"><i></i><i></i><i></i></div></div>
 </div>
 
-<!-- ===== Acceso ===== -->
+<!-- ===== Acceso: el espacio con la malla de conexiones, el planeta abajo y el logo flotando sobre la tarjeta ===== -->
 <main class="acceso" id="acceso" hidden>
+  <div class="acceso-fondo" aria-hidden="true"><div class="acceso-estrellas"></div><div class="acceso-planeta"></div></div>
   <div class="acceso-caja">
-    <div class="acceso-marca"><i aria-hidden="true"></i><div><b>AW-RiseCR</b><small>Portal de clientes</small></div></div>
+    <div class="acceso-marca"><div class="acceso-logo" aria-hidden="true"><i></i><b></b></div><b>AW-RiseCR</b><small>Portal de clientes</small></div>
 
+    <div class="acceso-formularios">
     <form class="formulario" id="form-entrar" novalidate>
       <h1>Entrar al portal</h1>
       <p>Usa el correo y la contraseña de tu cuenta.</p>
-      <div class="campo"><label for="entrar-correo">Correo</label><input id="entrar-correo" type="email" autocomplete="username" maxlength="254" required></div>
-      <div class="campo"><label for="entrar-clave">Contraseña</label><input id="entrar-clave" type="password" autocomplete="current-password" maxlength="128" required></div>
+      <div class="campo"><label for="entrar-correo">Correo</label><div class="campo-icono"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg><input id="entrar-correo" type="email" autocomplete="username" maxlength="254" placeholder="tu@correo.com" required></div></div>
+      <div class="campo"><label for="entrar-clave">Contraseña</label><div class="campo-icono con-ojo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11h14v10H5zM8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="entrar-clave" type="password" autocomplete="current-password" maxlength="128" required><button class="ver-clave" type="button" aria-label="Mostrar contraseña" aria-pressed="false" data-ver-clave><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="tachado" d="M4 4l16 16"/></svg></button></div></div>
       <label class="casilla recordar"><input id="entrar-recordar" type="checkbox"><span>Mantener la sesión iniciada<small>Durante 30 días en este dispositivo. No lo marques en una computadora compartida.</small></span></label>
       <div class="captcha" data-captcha></div>
-      <button class="boton primario ancho" type="submit">Entrar</button>
+      <button class="boton primario ancho" type="submit">Entrar <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       <button class="enlace" type="button" data-ir-form="form-recuperar">¿Olvidaste tu contraseña?</button>
       <div class="aviso" hidden></div>
     </form>
@@ -38,7 +40,7 @@
     <form class="formulario" id="form-recuperar" novalidate hidden>
       <h1>Recuperar contraseña</h1>
       <p>Escribe tu correo y te enviamos un enlace para crear una nueva.</p>
-      <div class="campo"><label for="recuperar-correo">Correo</label><input id="recuperar-correo" type="email" autocomplete="username" maxlength="254" required></div>
+      <div class="campo"><label for="recuperar-correo">Correo</label><div class="campo-icono"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg><input id="recuperar-correo" type="email" autocomplete="username" maxlength="254" placeholder="tu@correo.com" required></div></div>
       <div class="captcha" data-captcha></div>
       <button class="boton primario ancho" type="submit">Enviar enlace</button>
       <button class="enlace" type="button" data-ir-form="form-entrar">Volver a entrar</button>
@@ -48,8 +50,8 @@
     <form class="formulario" id="form-clave" novalidate hidden>
       <h1 id="clave-titulo">Crea tu nueva contraseña</h1>
       <p>Mínimo 10 caracteres. Usa una frase que recuerdes y que no uses en otro lado.</p>
-      <div class="campo"><label for="clave-nueva">Nueva contraseña</label><input id="clave-nueva" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>
-      <div class="campo"><label for="clave-repetir">Repítela</label><input id="clave-repetir" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>
+      <div class="campo"><label for="clave-nueva">Nueva contraseña</label><div class="campo-icono con-ojo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11h14v10H5zM8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="clave-nueva" type="password" autocomplete="new-password" minlength="10" maxlength="128" required><button class="ver-clave" type="button" aria-label="Mostrar contraseña" aria-pressed="false" data-ver-clave><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="tachado" d="M4 4l16 16"/></svg></button></div></div>
+      <div class="campo"><label for="clave-repetir">Repítela</label><div class="campo-icono con-ojo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11h14v10H5zM8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="clave-repetir" type="password" autocomplete="new-password" minlength="10" maxlength="128" required><button class="ver-clave" type="button" aria-label="Mostrar contraseña" aria-pressed="false" data-ver-clave><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="tachado" d="M4 4l16 16"/></svg></button></div></div>
       <button class="boton primario ancho" type="submit">Guardar y entrar</button>
       <div class="aviso" hidden></div>
     </form>
@@ -61,13 +63,18 @@
         <img id="mfa-imagen" alt="Código QR para tu app de autenticación" width="180" height="180">
         <p class="dato">¿No puedes escanear? Escribe esta clave en la app:<br><code id="mfa-secreto"></code></p>
       </div>
-      <div class="campo"><label for="mfa-codigo">Código de 6 dígitos</label><input id="mfa-codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
+      <div class="campo"><label for="mfa-codigo">Código de 6 dígitos</label><div class="campo-icono"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6zM9 12l2 2 4-4"/></svg><input id="mfa-codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div></div>
       <button class="boton primario ancho" type="submit">Verificar y entrar</button>
       <button class="enlace" type="button" data-salir>Cerrar sesión</button>
       <div class="aviso" hidden></div>
     </form>
+    </div>
 
-    <p class="acceso-pie">Acceso solo por invitación de AW-RiseCR.</p>
+    <div class="acceso-pie">
+      <span>Acceso solo por invitación de AW-RiseCR.</span>
+      <span>¿Problemas para entrar? <a href="https://wa.me/50685847369?text=Hola%2C%20AW-RiseCR.%20Tengo%20problemas%20para%20entrar%20al%20portal%20de%20clientes." target="_blank" rel="noopener">Escríbenos por WhatsApp</a></span>
+      <span class="acceso-seguro"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11h14v10H5zM8 11V8a4 4 0 0 1 8 0v3"/></svg> Conexión cifrada · protegido por Cloudflare</span>
+    </div>
   </div>
 </main>
 

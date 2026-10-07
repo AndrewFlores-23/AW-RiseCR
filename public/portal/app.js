@@ -4,6 +4,7 @@ import { $, el, icono, fecha, fechaCorta, hora, dinero, fLarga, estadoCobro, car
 import { iniciarCliente, vistaPagos, vistaFondo, vistaDocumentos, vistaAccesos } from "/portal/cliente.js";
 import { abrirTour } from "/portal/tour.js";
 import { configurarCaptcha, crearCaptcha } from "/portal/captcha.js";
+import { armarFondoAcceso } from "/portal/acceso-fondo.js";
 
 // El tipo de enlace (invitación o recuperación) se lee antes de que Supabase limpie la dirección
 const hashInicial = new URLSearchParams(location.hash.slice(1));
@@ -266,11 +267,20 @@ const estado = { perfil: null, seccion: "inicio", negocioVista: null, proyectoVi
 // ---------- Acceso ----------
 function mostrar(id) {
   for (const s of ["carga", "acceso", "app"]) $("#" + s).hidden = s !== id;
+  if (id === "acceso") armarFondoAcceso($("#acceso .acceso-fondo")); // el cielo se arma la primera vez que se ve
 }
 function mostrarForm(id) {
   for (const f of document.querySelectorAll(".formulario")) f.hidden = f.id !== id;
+  for (const b of document.querySelectorAll("[data-ver-clave]")) verClave(b, false); // las contraseñas vuelven a ocultarse
   const aviso = $("#" + id + " .aviso"); if (aviso) aviso.hidden = true;
   $("#" + id + " input")?.focus();
+}
+// Botón del ojo: muestra u oculta la contraseña del campo
+function verClave(boton, ver) {
+  const campo = boton.parentElement.querySelector("input");
+  campo.type = ver ? "text" : "password";
+  boton.setAttribute("aria-pressed", String(ver));
+  boton.setAttribute("aria-label", ver ? "Ocultar contraseña" : "Mostrar contraseña");
 }
 function avisar(form, texto, tipo = "error") {
   const a = $(".aviso", form); a.textContent = texto; a.className = "aviso " + tipo; a.hidden = false;
@@ -313,11 +323,11 @@ const enCuenta = (boton) => Boolean(boton._cuenta);
 const tiempo = (s) => (s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")} min` : `${s} s`);
 function cuentaRegresiva(boton, ms, rotulo) {
   clearInterval(boton._cuenta);
-  boton._rotulo ??= boton.textContent;
+  boton._contenido ??= [...boton.childNodes]; // el texto y su ícono, para devolverlos al terminar
   const fin = Date.now() + ms;
   const pintar = () => {
     const s = Math.ceil((fin - Date.now()) / 1000);
-    if (s <= 0) { clearInterval(boton._cuenta); boton._cuenta = null; boton.disabled = false; boton.textContent = boton._rotulo; return; }
+    if (s <= 0) { clearInterval(boton._cuenta); boton._cuenta = null; boton.disabled = false; boton.replaceChildren(...boton._contenido); return; }
     boton.disabled = true; boton.textContent = rotulo(tiempo(s));
   };
   boton._cuenta = setInterval(pintar, 1000);
@@ -332,6 +342,10 @@ function frenar(form, boton, f) {
 
 function prepararAcceso() {
   document.querySelectorAll("[data-ir-form]").forEach((b) => b.addEventListener("click", () => mostrarForm(b.dataset.irForm)));
+  document.querySelectorAll("[data-ver-clave]").forEach((b) => b.addEventListener("click", () => {
+    verClave(b, b.getAttribute("aria-pressed") !== "true");
+    b.parentElement.querySelector("input").focus();
+  }));
 
   const captchaEntrar = crearCaptcha($("#form-entrar [data-captcha]"));
   const captchaRecuperar = crearCaptcha($("#form-recuperar [data-captcha]"));
@@ -839,7 +853,11 @@ async function vistaBitacora() {
 async function iniciar() {
   iniciarCliente({ datos, estado, irA, pintarVista, selectorAdmin });
   prepararAcceso();
-  if (DEMO) { document.title = "Portal · DEMO"; await entrarAlPortal(); return; }
+  if (DEMO) { // con ?acceso abre en la pantalla de entrada
+    document.title = "Portal · DEMO";
+    if (parametros.has("acceso")) { mostrar("acceso"); mostrarForm("form-entrar"); } else await entrarAlPortal();
+    return;
+  }
   try { await conectar(); }
   catch { mostrar("acceso"); mostrarForm("form-entrar"); avisar($("#form-entrar"), "No pudimos conectar con el portal. Revisa tu internet."); return; }
 

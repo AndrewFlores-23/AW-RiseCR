@@ -146,6 +146,13 @@ Plataforma privada en `awrisecr.com/portal` para Andrew (administrador) y sus cl
     - Revisión de inyección SQL: todo va por supabase-js con parámetros. Las funciones RPC no arman SQL con texto del usuario (el único `execute format` está en migraciones, con nombres de tabla fijos). No hay `innerHTML`.
       - Sin sesión no se puede leer ni escribir ninguna tabla (probado con la API publicada).
     - Supabase ya trae límites de entrada por IP. El bloqueo por cuenta (hook de verificación de contraseña) y la protección contra contraseñas filtradas son de planes de pago.
+  - **Pantalla de entrada nueva** (opción A, "Horizonte", elegida por Andrew el 2026-10-06):
+    - Todo el fondo es el espacio, con estrellas y una malla de conexiones, y abajo el planeta con su brillo, como el pie de los correos. El logo grande flota sobre la tarjeta.
+    - `acceso-fondo.js` arma las estrellas y la malla la primera vez que se muestra la entrada, con la proporción de la pantalla (unas 300 líneas en el celular y unas 950 en la computadora).
+    - Las líneas van en 16 anillos según su distancia al logo: la onda de luz anima los anillos y no cada línea.
+    - Campos con ícono y un botón de ojo para ver la contraseña (se vuelve a ocultar al cambiar de formulario). Pie con ayuda por WhatsApp y "Conexión cifrada · protegido por Cloudflare".
+    - Entrada animada: estrellas, planeta que sube, logo que aparece, tarjeta y pie. Con "reducir movimiento" no se anima.
+    - En demo: `?demo=cliente&acceso` abre directo en la entrada.
 - Pendiente antes de los clientes reales:
   - ~~Cambiar la Site URL de Supabase~~: hecho el 2026-10-06 (`https://awrisecr.com/portal/`).
   - Borrar el "Cliente de prueba" y su usuario.

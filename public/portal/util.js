@@ -16,6 +16,12 @@ export function el(etiqueta, atributos = {}, ...hijos) {
   return nodo;
 }
 
+// Números al azar que salen siempre iguales con la misma semilla (estrellas y mallas dibujan lo mismo cada vez)
+export function azarConSemilla(semilla) {
+  return () => { semilla = (semilla + 0x6d2b79f5) | 0; let t = Math.imul(semilla ^ (semilla >>> 15), 1 | semilla);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+
 export function icono(nombre) {
   const trazos = {
     inicio: "M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",

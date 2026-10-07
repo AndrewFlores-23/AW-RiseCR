@@ -1,7 +1,7 @@
 // Portal AW-RiseCR · recorrido de bienvenida
 // Oscurece la pantalla e ilumina una parte a la vez (un foco), con una tarjeta que explica qué hay ahí.
 // Se mueve con Siguiente / Atrás, las flechas del teclado o Esc para saltarlo. Funciona en la computadora y en el dock del celular.
-import { el, icono } from "/portal/util.js";
+import { el, icono, azarConSemilla } from "/portal/util.js";
 
 let abierto = null; // evita abrir dos recorridos a la vez
 
@@ -14,10 +14,6 @@ const svg = (etiqueta, atributos = {}) => {
   for (const [k, v] of Object.entries(atributos)) n.setAttribute(k, v);
   return n;
 };
-function azarConSemilla(semilla) { // mismo dibujo cada vez
-  return () => { semilla = (semilla + 0x6d2b79f5) | 0; let t = Math.imul(semilla ^ (semilla >>> 15), 1 | semilla);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-}
 function redPortada() {
   const azar = azarConSemilla(8), entre = (a, b) => a + azar() * (b - a);
   const libre = (x, y) => Math.abs(x) < 50 && Math.abs(y) < 42; // sin puntos detrás del logo
