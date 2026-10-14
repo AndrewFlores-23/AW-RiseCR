@@ -4,7 +4,7 @@
 import { el, icono, fechaCorta, dinero, hoy, ETAPAS, TIPOS } from "/portal/util.js";
 import { ctx, fijarContexto, api, idc, TIPOS_ARCHIVO, MAX_ARCHIVO, tipoDe, campo, entrada, area, seleccion, mensaje, conBoton, linea, soloDigitos } from "/portal/admin-base.js";
 import { vistaCobros, tarjetaCobros, tarjetaServicios, tarjetaFondo, avisoReferidos } from "/portal/admin-plata.js";
-import { tarjetaAccesos, tarjetaDocumentos, avisoRenovaciones } from "/portal/admin-expediente.js";
+import { tarjetaAccesos, tarjetaDocumentos, tarjetaReportes, avisoRenovaciones } from "/portal/admin-expediente.js";
 
 export const iniciarAdmin = fijarContexto;
 const etapaNombre = (k) => ETAPAS.find(([e]) => e === k)?.[1] || k;
@@ -149,6 +149,7 @@ async function vistaGestionar() {
     el("div", { class: "rejilla dos arriba" },
       await tarjetaDocumentos(id, proyectos, recargar),
       await tarjetaAccesos(id, proyectos, recargar)),
+    await tarjetaReportes(id, recargar),
   ];
 }
 

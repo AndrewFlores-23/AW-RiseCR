@@ -10,6 +10,33 @@
 <link rel="icon" href="/aw-rise-favicon.png">
 <link rel="stylesheet" href="/portal/portal.css">
 <script type="module" src="/portal/app.js"></script>
+<!-- Rendimiento: lo que el portal necesita siempre se pide de una vez al abrir, en paralelo, en vez de irlo descubriendo
+     en cascada (el logo del cargador, las fuentes y los módulos). Si se agrega un módulo importado por app.js, va aquí también. -->
+<link rel="preload" href="/portal/logo-aw.webp" as="image">
+<link rel="preload" href="/portal/fuentes/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/portal/fuentes/jetbrainsmono.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="modulepreload" href="/portal/config.js">
+<link rel="modulepreload" href="/portal/util.js">
+<link rel="modulepreload" href="/portal/cliente.js">
+<link rel="modulepreload" href="/portal/tour.js">
+<link rel="modulepreload" href="/portal/onda.js">
+<link rel="modulepreload" href="/portal/captcha.js">
+<link rel="modulepreload" href="/portal/acceso-fondo.js">
+<!-- Supabase llega en tres tandas de módulos (cada uno pide los siguientes); así se piden todos juntos, con prioridad baja
+     para no atrasar los estilos ni el código del portal, que se necesitan antes. Al cambiar la versión de SUPABASE_JS en
+     config.js, cambiarla aquí también (si no, solo se descarga de más). -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://gppltlberzswfufgrhif.supabase.co" crossorigin>
+<link rel="preconnect" href="https://challenges.cloudflare.com">
+<link rel="modulepreload" fetchpriority="low" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm">
+<link rel="modulepreload" fetchpriority="low" href="https://cdn.jsdelivr.net/npm/@supabase/auth-js@2.117.2/+esm">
+<link rel="modulepreload" fetchpriority="low" href="https://cdn.jsdelivr.net/npm/@supabase/postgrest-js@2.117.2/+esm">
+<link rel="modulepreload" fetchpriority="low" href="https://cdn.jsdelivr.net/npm/@supabase/storage-js@2.117.2/+esm">
+<link rel="modulepreload" fetchpriority="low" href="https://cdn.jsdelivr.net/npm/@supabase/realtime-js@2.117.2/+esm">
+<link rel="modulepreload" fetchpriority="low" href="https://cdn.jsdelivr.net/npm/@supabase/functions-js@2.117.2/+esm">
+<link rel="modulepreload" fetchpriority="low" href="https://cdn.jsdelivr.net/npm/@supabase/phoenix@0.4.5/+esm">
+<link rel="modulepreload" fetchpriority="low" href="https://cdn.jsdelivr.net/npm/tslib@2.8.1/+esm">
+<link rel="modulepreload" fetchpriority="low" href="https://cdn.jsdelivr.net/npm/iceberg-js@0.8.1/+esm">
 </head>
 <body>
 

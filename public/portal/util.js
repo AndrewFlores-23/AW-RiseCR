@@ -34,6 +34,7 @@ export function icono(nombre) {
     clientes: "M9 4.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM2.5 20a6.5 6.5 0 0 1 13 0M17 11a3 3 0 1 0 0-6M21.5 20a5 5 0 0 0-4-4.9",
     publicar: "M12 5v14M5 12h14",
     cuenta: "M12 3.5a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM4.5 20.5a7.5 7.5 0 0 1 15 0",
+    reportes: "M4 20h16M7 16v-4M12 16V7M17 16v-7",
   };
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 24 24");
@@ -111,6 +112,13 @@ export function estadoCobro(c) {
   if (c.vence < hoy()) return "atrasado";
   return c.vence <= sumarDias(hoy(), 7) ? "por_vencer" : "programado";
 }
+// ---------- Reportes mensuales ----------
+// Lo que puede cubrir un reporte (los mismos tipos de servicio que acepta la base de datos)
+export const TIPOS_REPORTE = { mantenimiento: "Rendimiento web", seo: "Posicionamiento SEO", redes: "Redes sociales", fidelizacion: "Tarjetas de fidelidad" };
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+// "2026-09-01" → "septiembre 2026" (sin zona horaria: es un mes, no un momento)
+export const mesLargo = (iso) => { const [a, m] = iso.split("-").map(Number); return `${MESES[m - 1]} ${a}`; };
+
 export const TIPO_SERVICIO = { web: "Web", mantenimiento: "Mantenimiento", seo: "SEO", redes: "Redes sociales", fidelizacion: "Fidelización", otro: "Otro" };
 export const MOVIMIENTO = { bienvenida: "Bienvenida", referido: "Recomendación", uso: "Usado", vencimiento: "Vencido", ajuste: "Ajuste" };
 export const METODOS = ["SINPE Móvil", "Transferencia", "Efectivo", "Tarjeta", "Otro"];

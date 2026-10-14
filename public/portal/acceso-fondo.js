@@ -1,8 +1,10 @@
 // Portal AW-RiseCR · fondo de la pantalla de entrada: estrellas y una malla de conexiones (plexus) que cubre el cielo,
 // con una onda de luz que sale desde el logo. El planeta y su brillo están en portal.css.
-// Las líneas se agrupan en anillos según su distancia al logo: se anima cada anillo (16 animaciones) y no cada línea.
+// La malla es un SVG quieto de dos trazos (líneas y puntos) que se pinta una sola vez; la onda la dibuja onda.js en un
+// lienzo encima, por anillos según la distancia al logo.
 // Posiciones y retrasos van por CSSOM, porque la política de seguridad bloquea los estilos escritos en el HTML.
 import { azarConSemilla } from "/portal/util.js";
+import { ondaMalla } from "/portal/onda.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const ANILLOS = 16, ONDA = 2.2; // segundos que tarda la luz en llegar al borde
@@ -34,40 +36,51 @@ function malla() {
   }
   const lejos = Math.hypot(Math.max(cx, ancho - cx), Math.max(cy, alto - cy));
   const anillo = (x, y) => Math.min(ANILLOS - 1, Math.floor(Math.hypot(x - cx, y - cy) / lejos * ANILLOS));
+  const lineas = [];
+  for (let i = 0; i < puntos.length; i++) {
+    for (let j = i + 1; j < puntos.length; j++) {
+      const [x1, y1] = puntos[i], [x2, y2] = puntos[j];
+      if (Math.hypot(x1 - x2, y1 - y2) < enlace) lineas.push([...[x1, y1, x2, y2].map(Math.round), anillo((x1 + x2) / 2, (y1 + y2) / 2)]);
+    }
+  }
+  const nudos = puntos.map(([x, y]) => [Math.round(x), Math.round(y), anillo(x, y)]);
+
   const svg = document.createElementNS(NS, "svg");
   svg.setAttribute("class", "acceso-red");
   svg.setAttribute("viewBox", `0 0 ${ancho} ${alto}`);
   svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
   svg.setAttribute("aria-hidden", "true");
-  const grupos = (clase) => Array.from({ length: ANILLOS }, (_, k) => {
-    const g = document.createElementNS(NS, "g");
-    g.setAttribute("class", clase);
-    g.style.animationDelay = `${(k / ANILLOS * ONDA).toFixed(2)}s`;
-    return g;
-  });
-  const lineas = grupos("malla"), nudos = grupos("punto");
-  for (let i = 0; i < puntos.length; i++) {
-    for (let j = i + 1; j < puntos.length; j++) {
-      const [x1, y1] = puntos[i], [x2, y2] = puntos[j];
-      if (Math.hypot(x1 - x2, y1 - y2) >= enlace) continue;
-      const l = document.createElementNS(NS, "line");
-      for (const [k, v] of Object.entries({ x1, y1, x2, y2 })) l.setAttribute(k, v.toFixed(0));
-      lineas[anillo((x1 + x2) / 2, (y1 + y2) / 2)].append(l);
-    }
-  }
-  for (const [x, y] of puntos) {
-    const c = document.createElementNS(NS, "circle");
-    c.setAttribute("cx", x.toFixed(0)); c.setAttribute("cy", y.toFixed(0)); c.setAttribute("r", "1.6");
-    nudos[anillo(x, y)].append(c);
-  }
-  svg.append(...lineas, ...nudos);
-  return svg;
+  const trazo = (clase, d) => { const p = document.createElementNS(NS, "path"); p.setAttribute("class", clase); p.setAttribute("d", d); return p; };
+  svg.append(trazo("malla", lineas.map(([x1, y1, x2, y2]) => `M${x1} ${y1}L${x2} ${y2}`).join("")),
+    trazo("punto", nudos.map(([x, y]) => `M${x - 1.6} ${y}a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0-3.2 0`).join("")));
+
+  const lienzo = document.createElement("canvas");
+  lienzo.className = "acceso-onda";
+  lienzo.setAttribute("aria-hidden", "true");
+  return { svg, lienzo, lineas, nudos, caja: [0, 0, ancho, alto] };
 }
 
-// Se arma una sola vez, la primera vez que se muestra la pantalla de entrada
+// Se arma una sola vez, la primera vez que se muestra la pantalla de entrada; la onda arranca cada vez que se muestra
+// y se detiene sola cuando la pantalla se oculta.
+let onda = null;
 export function armarFondoAcceso(fondo) {
-  if (!fondo || fondo.dataset.listo) return;
-  fondo.dataset.listo = "1";
-  estrellas(fondo.querySelector(".acceso-estrellas"));
-  fondo.querySelector(".acceso-planeta").before(malla());
+  if (!fondo) return;
+  if (!onda) {
+    estrellas(fondo.querySelector(".acceso-estrellas"));
+    const { svg, lienzo, lineas, nudos, caja } = malla();
+    fondo.querySelector(".acceso-planeta").before(svg, lienzo);
+    onda = ondaMalla(lienzo, {
+      lineas, nudos, caja, anillos: ANILLOS, retraso: (k) => k / ANILLOS * ONDA, periodo: 4, grosor: 1, radio: 1.6,
+      linea: [76, 194, 255, .13], lineaLuz: [150, 220, 255, .75], nudo: [191, 234, 255, .4], nudoLuz: [255, 255, 255, 1],
+      // el mismo desvanecido del SVG: visible arriba y se apaga entre el 30 % y el 75 % del alto
+      mascara(ctx, ancho, alto, escala) {
+        ctx.setTransform(escala, 0, 0, escala, 0, 0);
+        const g = ctx.createLinearGradient(0, alto * .3, 0, alto * .75);
+        g.addColorStop(0, "#000"); g.addColorStop(1, "transparent");
+        ctx.fillStyle = g; ctx.fillRect(0, 0, ancho, alto);
+      },
+      seguir: () => lienzo.isConnected && !fondo.closest("[hidden]"),
+    });
+  }
+  onda.iniciar();
 }

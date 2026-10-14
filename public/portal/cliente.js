@@ -1,6 +1,7 @@
-// Portal AW-RiseCR · secciones del cliente: Pagos, Fondo AW, Documentos y el documento de bienvenida
+// Portal AW-RiseCR · secciones del cliente: Pagos, Fondo AW, Documentos, Reportes y el documento de bienvenida
 import { CONTACTO } from "/portal/config.js";
-import { el, fecha, fechaCorta, dinero, hoy, sumarDias, filaMovimiento, proximaMensualidad, ETAPAS, ESTADO_COBRO, TIPO_SERVICIO } from "/portal/util.js";
+import { el, icono, fecha, fechaCorta, dinero, hoy, sumarDias, filaMovimiento, proximaMensualidad, mesLargo,
+  ETAPAS, ESTADO_COBRO, TIPO_SERVICIO, TIPOS_REPORTE } from "/portal/util.js";
 
 let ctx = null; // { datos, estado, irA, pintarVista, selectorAdmin }
 export function iniciarCliente(contexto) { ctx = contexto; }
@@ -256,5 +257,55 @@ function bienvenida({ negocio, proyecto, cobros, mensualidades, pago }) {
         el("div", {}, el("small", {}, "Llamadas"), el("b", {}, CONTACTO.llamadas)),
         el("div", {}, el("small", {}, "Correo"), el("b", {}, CONTACTO.correo))),
       el("p", { class: "dato" }, "Condiciones completas en awrisecr.com/politicas")),
+  ].filter(Boolean);
+}
+
+// ---------- Reportes mensuales ----------
+// Para clientes con mantenimiento web, SEO, redes o fidelización. Si dejan de pagar, conservan los que ya recibieron.
+// Como la Bitácora: una entrada por mes con su PDF, el más nuevo primero (es lo que el cliente busca al entrar).
+function entradaReporte(r, urls, ultimo) {
+  const pdf = (r.adjuntos || []).find((a) => a.tipo_mime === "application/pdf");
+  const vista = (r.adjuntos || []).find((a) => a.tipo_mime?.startsWith("image/") && urls[a.ruta]);
+  const url = pdf && urls[pdf.ruta];
+  const [mes, anio] = mesLargo(r.periodo).split(" ");
+  // Miniatura de la portada: abre el reporte igual que el botón (por eso no lleva su propia parada del teclado)
+  const imagen = vista ? el("img", { src: urls[vista.ruta], alt: "", loading: "lazy", width: "640", height: "400" })
+    : el("span", { class: "sin-vista" }, icono("documentos"), "PDF");
+  return el("article", { class: "entrada reporte" + (ultimo ? " ultimo" : "") },
+    el("div", { class: "cuando" }, el("b", {}, mes), el("span", {}, anio)),
+    el("div", { class: "eje" }, el("i", { class: "punto" })),
+    el("div", { class: "tarjeta" },
+      url ? el("a", { class: "reporte-vista", href: url, target: "_blank", rel: "noopener", tabindex: "-1", "aria-hidden": "true" }, imagen)
+        : el("div", { class: "reporte-vista" }, imagen),
+      el("div", { class: "reporte-info" },
+        el("div", { class: "reporte-cab" },
+          el("div", {}, el("h3", {}, r.titulo), el("span", { class: "dato" }, `Publicado el ${fecha(r.creado_en)}`)),
+          ultimo ? el("span", { class: "sello info" }, "Más reciente") : null),
+        el("div", { class: "fila chips" }, (r.tipos || []).map((t) => el("span", { class: "chip" }, TIPOS_REPORTE[t] || t))),
+        el("div", { class: "acciones" }, url
+          ? [el("a", { class: "boton primario", href: url, target: "_blank", rel: "noopener" }, icono("documentos"), "Ver el reporte"),
+             el("a", { class: "boton", href: url + (url.includes("?") ? "&" : "?") + "download=" + encodeURIComponent(pdf.nombre), rel: "noopener" }, "Descargar PDF")]
+          : el("span", { class: "dato" }, "El PDF de este reporte todavía no está disponible.")))));
+}
+
+export async function vistaReportes() {
+  const id = ctx.estado.negocioVista;
+  const [negocio, reportes, servicios, negocios] = await Promise.all([ctx.datos.negocio(id), ctx.datos.reportes(id), ctx.datos.servicios(id), negociosAdmin()]);
+  const activos = servicios.filter((s) => s.estado === "activo" && TIPOS_REPORTE[s.tipo]);
+  const urls = await ctx.datos.urls(reportes.flatMap((r) => (r.adjuntos || []).map((a) => a.ruta)));
+  const cab = cabecera("Reportes", "Tus reportes mensuales", "Cómo les va a tu web, a tu presencia en Google y a tus redes, mes a mes.");
+  if (!reportes.length) {
+    return [ctx.selectorAdmin(negocios), cab, el("div", { class: "tarjeta" }, el("div", { class: "vacio" }, activos.length
+      ? "Tu primer reporte llega al cierre de tu primer mes de servicio. Te avisamos por correo cuando esté listo."
+      : "Los reportes mensuales vienen con el mantenimiento web, el SEO, el manejo de redes o las tarjetas de fidelidad."))].filter(Boolean);
+  }
+  return [
+    ctx.selectorAdmin(negocios),
+    cab,
+    !activos.length ? el("div", { class: "tarjeta aviso-seguro" }, el("div", { class: "tarjeta-cuerpo" },
+      el("b", {}, "Tu servicio mensual está en pausa."),
+      el("p", {}, "Aquí siguen todos tus reportes anteriores. Para volver a recibir uno cada mes, ",
+        el("a", { href: whatsapp(`Hola, AW-RiseCR. Soy de ${negocio?.nombre || "mi negocio"} y quiero retomar el servicio mensual.`), target: "_blank", rel: "noopener" }, "escríbenos"), "."))) : null,
+    el("div", { class: "bitacora reportes" }, reportes.map((r, i) => entradaReporte(r, urls, i === 0))),
   ].filter(Boolean);
 }

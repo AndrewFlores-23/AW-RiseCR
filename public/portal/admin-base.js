@@ -113,6 +113,43 @@ const real = {
     const data = revisar(await ctx.sb.storage.from("portal").createSignedUrls(rutas, 3600));
     return Object.fromEntries(data.filter((x) => x.signedUrl).map((x) => [x.path, x.signedUrl]));
   },
+  // Reportes mensuales: el PDF de herramientas/reportes. La base de datos solo acepta uno nuevo si el cliente
+  // tiene activo mantenimiento, SEO, redes o fidelización.
+  reportes: async (id) => revisar(await ctx.sb.from("reportes").select("id, tipos, periodo, titulo, creado_en, avisado_en, avisados, adjuntos(id, ruta, nombre, tipo_mime, tamano)")
+    .eq("negocio_id", id).order("periodo", { ascending: false }).order("creado_en", { ascending: false })),
+  async publicarReporte({ negocio_id, tipos, periodo, titulo, archivo, miniatura }) {
+    const r = revisar(await ctx.sb.from("reportes").insert({ negocio_id, tipos, periodo, titulo }).select("id").single());
+    const ruta = `${negocio_id}/reportes/${r.id}/${crypto.randomUUID().slice(0, 8)}-${nombreSeguro(archivo.name)}`;
+    try {
+      revisar(await ctx.sb.storage.from("portal").upload(ruta, archivo, { contentType: "application/pdf", upsert: false }));
+      revisar(await ctx.sb.from("adjuntos").insert({ negocio_id, reporte_id: r.id, ruta, nombre: archivo.name, tamano: archivo.size, tipo_mime: "application/pdf" }));
+    } catch (e) { // sin su PDF no queda un reporte a medias
+      await ctx.sb.storage.from("portal").remove([ruta]);
+      await ctx.sb.from("reportes").delete().eq("id", r.id);
+      throw e;
+    }
+    // Sin la vista previa el reporte sirve igual: se puede crear después desde la lista
+    if (miniatura) await real.agregarMiniatura(negocio_id, r.id, miniatura).catch((e) => console.error(e));
+    return r.id;
+  },
+  // Vista previa del reporte: la imagen de la portada del PDF (la hace miniatura.js en el navegador)
+  async agregarMiniatura(negocio_id, reporte_id, imagen) {
+    const ext = imagen.type === "image/webp" ? "webp" : "jpg";
+    const ruta = `${negocio_id}/reportes/${reporte_id}/${crypto.randomUUID().slice(0, 8)}-vista-previa.${ext}`;
+    revisar(await ctx.sb.storage.from("portal").upload(ruta, imagen, { contentType: imagen.type, upsert: false }));
+    try {
+      revisar(await ctx.sb.from("adjuntos").insert({ negocio_id, reporte_id, ruta, nombre: `Vista previa.${ext}`, tamano: imagen.size, tipo_mime: imagen.type }));
+    } catch (e) {
+      await ctx.sb.storage.from("portal").remove([ruta]);
+      throw e;
+    }
+  },
+  async borrarReporte(rep) {
+    const rutas = (rep.adjuntos || []).map((a) => a.ruta);
+    if (rutas.length) revisar(await ctx.sb.storage.from("portal").remove(rutas));
+    revisar(await ctx.sb.from("reportes").delete().eq("id", rep.id));
+  },
+  avisarReporte: async (id) => invocar({ reporte_id: id }, "avisar-avance"),
   // Datos de pago que ven los clientes (en la base de datos, nunca en el código)
   pago: async () => revisar(await ctx.sb.from("ajustes").select("valor").eq("clave", "pago").maybeSingle())?.valor || {},
   guardarPago: async (valor) => revisar(await ctx.sb.from("ajustes").update({ valor, actualizado_en: new Date().toISOString() }).eq("clave", "pago")),
@@ -153,11 +190,22 @@ const memoria = {
   ],
   // Valores de ejemplo, no reales: los datos de verdad solo viven en la base de datos
   pago: { sinpe: "8000-0000", sinpe_titular: "Nombre del titular", banco: "BAC", cuenta_titular: "NOMBRE DEL TITULAR", cuenta: "000000000", iban: "CR00 0000 0000 0000 0000 00" },
+  reportes: [
+    { id: "r2", negocio_id: "demo-1", tipos: ["mantenimiento", "redes"], periodo: "2026-09-01", titulo: "Reporte de septiembre", creado_en: "2026-10-07T15:00:00Z", avisado_en: "2026-10-07T15:01:00Z", avisados: 1,
+      adjuntos: [{ id: "y2", ruta: "demo/reporte-septiembre.pdf", nombre: "Reporte-septiembre-2026.pdf", tipo_mime: "application/pdf", tamano: 2400000 },
+        { id: "y2v", ruta: "demo/reporte-septiembre.webp", nombre: "Vista previa.webp", tipo_mime: "image/webp", tamano: 30000 }] },
+    { id: "r1", negocio_id: "demo-1", tipos: ["mantenimiento", "redes"], periodo: "2026-08-01", titulo: "Reporte de agosto", creado_en: "2026-09-06T15:00:00Z", avisado_en: null, avisados: null,
+      adjuntos: [{ id: "y1", ruta: "demo/reporte-agosto.pdf", nombre: "Reporte-agosto-2026.pdf", tipo_mime: "application/pdf", tamano: 2100000 },
+        { id: "y1v", ruta: "demo/reporte-agosto.webp", nombre: "Vista previa.webp", tipo_mime: "image/webp", tamano: 30000 }] },
+  ],
   movimientos: [
     { id: "m1", negocio_id: "demo-1", tipo: "bienvenida", monto: 25, descripcion: "Bienvenida por venir recomendado", fecha: d(-16), vence: d(349) },
     { id: "m2", negocio_id: "demo-2", tipo: "bienvenida", monto: 25, descripcion: "Bienvenida por venir recomendado", fecha: d(-61), vence: d(304) },
   ],
 };
+// Las vistas previas de ejemplo están en /portal/demo; las que se crean al publicar en la demo viven en el navegador
+const vistasDemo = new Map();
+const urlDemo = (ruta) => vistasDemo.get(ruta) || (ruta.endsWith(".webp") ? "/portal/" + ruta : "/project-preview-odrys-mobile-v5.jpg");
 const conEstado = (c) => ({ ...c, estado: estadoCobro(c) });
 const saldoDemo = (id) => memoria.movimientos.filter((m) => m.negocio_id === id).reduce((s, m) => s + m.monto, 0);
 const demo = {
@@ -233,7 +281,26 @@ const demo = {
       adjuntos: doc.archivos.map((f, i) => ({ id: "x" + Date.now() + i, ruta: "demo/" + f.name, nombre: f.name, tipo_mime: tipoDe(f), tamano: f.size })) });
   },
   borrarDocumento: async (doc) => { memoria.documentos = memoria.documentos.filter((x) => x.id !== doc.id); },
-  urls: async (rutas) => Object.fromEntries(rutas.map((r) => [r, "/project-preview-odrys-mobile-v5.jpg"])),
+  reportes: async (id) => memoria.reportes.filter((r) => r.negocio_id === id).sort((a, b) => b.periodo.localeCompare(a.periodo)),
+  async publicarReporte(r) {
+    // Imita la regla de la base de datos: hace falta un servicio mensual activo de alguno de sus tipos
+    if (!memoria.servicios.some((s) => s.negocio_id === r.negocio_id && s.estado === "activo" && r.tipos.includes(s.tipo))) {
+      throw new Error("El cliente no tiene activo ninguno de esos servicios: no se puede publicar un reporte nuevo");
+    }
+    const id = "r" + Date.now();
+    memoria.reportes.unshift({ id, negocio_id: r.negocio_id, tipos: r.tipos, periodo: r.periodo, titulo: r.titulo, creado_en: new Date().toISOString(), avisado_en: null, avisados: null,
+      adjuntos: [{ id: "y" + Date.now(), ruta: "demo/" + r.archivo.name, nombre: r.archivo.name, tipo_mime: "application/pdf", tamano: r.archivo.size }] });
+    if (r.miniatura) await demo.agregarMiniatura(r.negocio_id, id, r.miniatura);
+    return id;
+  },
+  async agregarMiniatura(_negocio, id, imagen) {
+    const ruta = `demo/vista-${id}`;
+    vistasDemo.set(ruta, URL.createObjectURL(imagen));
+    memoria.reportes.find((x) => x.id === id).adjuntos.push({ id: "v" + Date.now(), ruta, nombre: "Vista previa", tipo_mime: imagen.type, tamano: imagen.size });
+  },
+  borrarReporte: async (rep) => { memoria.reportes = memoria.reportes.filter((x) => x.id !== rep.id); },
+  avisarReporte: async (id) => { Object.assign(memoria.reportes.find((r) => r.id === id), { avisado_en: new Date().toISOString(), avisados: 1 }); return { enviados: 1, sin_cuenta: 0 }; },
+  urls: async (rutas) => Object.fromEntries(rutas.map((r) => [r, urlDemo(r)])),
   pago: async () => ({ ...memoria.pago }),
   guardarPago: async (valor) => { memoria.pago = valor; },
   async cargarReferido(proyectoId) {
@@ -248,7 +315,8 @@ export const api = () => (ctx.DEMO ? demo : real);
 // Traduce los errores de la base de datos a un mensaje corto para Andrew
 export function textoError(e, porDefecto = "No se pudo completar. Inténtalo de nuevo.") {
   const m = e?.message || "";
-  const conocidos = ["Fondo AW", "pagado al 100", "15 días", "ya se cargó", "no vino recomendado", "no está pendiente", "Monto inválido", "no tiene monto", "Sin permiso", "no pertenece", "Falta el servicio", "no encontrado"];
+  const conocidos = ["Fondo AW", "pagado al 100", "15 días", "ya se cargó", "no vino recomendado", "no está pendiente", "Monto inválido", "no tiene monto", "Sin permiso", "no pertenece", "Falta el servicio", "no encontrado",
+    "no tiene activo ninguno"];
   return conocidos.some((k) => m.includes(k)) ? m : porDefecto;
 }
 

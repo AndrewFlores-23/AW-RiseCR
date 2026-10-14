@@ -47,10 +47,10 @@ MIGRACIONES = AQUI.parents[2] / "supabase" / "migrations"
 TABLAS = {
     "negocios": "id", "perfiles": "id", "contactos": "negocio_id", "servicios": "id", "proyectos": "id",
     "bitacora": "id", "documentos": "id", "adjuntos": "id", "cobros": "id", "fondo_movimientos": "id",
-    "accesos": "id", "ajustes": "clave", "actividad": "id",
+    "accesos": "id", "ajustes": "clave", "actividad": "id", "reportes": "id",
 }
 # Tablas que cuelgan de un cliente (columna negocio_id)
-POR_NEGOCIO = ["contactos", "servicios", "proyectos", "bitacora", "documentos", "adjuntos", "cobros", "fondo_movimientos", "accesos"]
+POR_NEGOCIO = ["contactos", "servicios", "proyectos", "reportes", "bitacora", "documentos", "adjuntos", "cobros", "fondo_movimientos", "accesos"]
 VERIFICADOR = "AW-RiseCR · respaldos del portal · v1"
 # En GitHub Actions la llave y la frase vienen de los secrets del repositorio privado (nunca del código ni del registro)
 AUTOMATICO = bool(os.environ.get("AW_SUPABASE_LLAVE", "").strip() and os.environ.get("AW_RESPALDOS_FRASE", "").strip())
@@ -527,7 +527,8 @@ def eliminar(nombre):
     ultimo = sorted((CARPETA / "respaldos").glob("*.datos.enc"))[-1:] if (CARPETA / "respaldos").exists() else []
     avisar(f"  Cliente: {n['nombre']}")
     avisar(f"  Se borra: {len(filas['proyectos'])} proyectos · {len(filas['bitacora'])} entradas de bitácora · {len(filas['cobros'])} cobros · "
-           f"{len(filas['documentos'])} documentos · {len(filas['accesos'])} accesos · {len(archivos)} archivos · su contacto, servicios, Fondo AW y actividad")
+           f"{len(filas['documentos'])} documentos · {len(filas['reportes'])} reportes · {len(filas['accesos'])} accesos · {len(archivos)} archivos · "
+           "su contacto, servicios, Fondo AW y actividad")
     avisar("  Usuarios que pierden el acceso: " + (", ".join(p["nombre"] or p["id"] for p in perfiles) or "(ninguno)"))
     avisar(f"  Último respaldo en esta computadora: {ultimo[0].name.split('.')[0] if ultimo else '(ninguno)'}"
            "  ← si no es de hoy, saca un respaldo antes de seguir.")

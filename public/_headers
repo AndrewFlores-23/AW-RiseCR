@@ -6,4 +6,24 @@
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://gppltlberzswfufgrhif.supabase.co wss://gppltlberzswfufgrhif.supabase.co https://cdn.jsdelivr.net; img-src 'self' data: blob: https://gppltlberzswfufgrhif.supabase.co; style-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+
+# Caché del portal. La página nunca se guarda (no-store). El código, los estilos y las imágenes se guardan, pero el
+# navegador pregunta siempre si cambiaron (no-cache): una versión nueva se ve al instante y, si no cambió, no se vuelve a
+# descargar. Las fuentes no cambian y se guardan un año (si algún día se cambia una, va con otro nombre de archivo).
+/portal/
   Cache-Control: no-store
+
+/portal/index.html
+  Cache-Control: no-store
+
+/portal/*.js
+  Cache-Control: no-cache
+
+/portal/*.css
+  Cache-Control: no-cache
+
+/portal/*.webp
+  Cache-Control: no-cache
+
+/portal/fuentes/*
+  Cache-Control: public, max-age=31536000, immutable

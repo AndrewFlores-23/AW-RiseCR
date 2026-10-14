@@ -2,7 +2,7 @@
 // los permisos los controla la base de datos (RLS); la llave de servicio nunca va aquí.
 export const SUPABASE_URL = "https://gppltlberzswfufgrhif.supabase.co";
 export const SUPABASE_KEY = "sb_publishable_mt2WQeu-skg1zU516of69g_LkLXp9eI";
-export const SUPABASE_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm";
+export const SUPABASE_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm"; // misma versión que en index.html (modulepreload)
 
 // Captcha de Cloudflare Turnstile (entrada, recuperación y cambio de contraseña). La "site key" es pública y va aquí;
 // la "secret key" va SOLO en Supabase → Authentication → Bot and Abuse Protection. Vacía = sin captcha.

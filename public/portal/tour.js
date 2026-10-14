@@ -2,19 +2,21 @@
 // Oscurece la pantalla e ilumina una parte a la vez (un foco), con una tarjeta que explica qué hay ahí.
 // Se mueve con Siguiente / Atrás, las flechas del teclado o Esc para saltarlo. Funciona en la computadora y en el dock del celular.
 import { el, icono, azarConSemilla } from "/portal/util.js";
+import { ondaMalla } from "/portal/onda.js";
 
 let abierto = null; // evita abrir dos recorridos a la vez
 
 // Malla de conexiones (plexus) detrás del logo de la portada: puntos en una rejilla con un leve temblor, unidos con sus
-// vecinos; una onda de luz la recorre desde el logo hacia los lados. Retrasos con CSSOM (la política de seguridad
-// bloquea estilos escritos en el HTML).
+// vecinos; una onda de luz la recorre desde el logo hacia los lados. La malla es un SVG quieto y la onda la dibuja
+// onda.js en un lienzo encima, por anillos según la distancia al logo.
 const NS = "http://www.w3.org/2000/svg";
 const svg = (etiqueta, atributos = {}) => {
   const n = document.createElementNS(NS, etiqueta);
   for (const [k, v] of Object.entries(atributos)) n.setAttribute(k, v);
   return n;
 };
-function redPortada() {
+const ANILLOS = 16, LEJOS = 238; // distancia del logo a la esquina de la malla
+function redPortada(visible) {
   const azar = azarConSemilla(8), entre = (a, b) => a + azar() * (b - a);
   const libre = (x, y) => Math.abs(x) < 50 && Math.abs(y) < 42; // sin puntos detrás del logo
   const puntos = [];
@@ -24,23 +26,33 @@ function redPortada() {
       if (!libre(x, y)) puntos.push([x, y]);
     }
   }
-  const retraso = (x, y) => `${(Math.hypot(x, y) / 220 * 1.6).toFixed(2)}s`; // la onda sale del logo
-  const red = svg("svg", { class: "portada-red", viewBox: "-210 -90 420 180", "aria-hidden": "true" });
+  const anillo = (x, y) => Math.min(ANILLOS - 1, Math.floor(Math.hypot(x, y) / LEJOS * ANILLOS));
+  const lineas = [];
   for (let i = 0; i < puntos.length; i++) {
     for (let j = i + 1; j < puntos.length; j++) {
       const [x1, y1] = puntos[i], [x2, y2] = puntos[j];
-      if (Math.hypot(x1 - x2, y1 - y2) >= 46) continue;
-      const l = svg("line", { x1: x1.toFixed(0), y1: y1.toFixed(0), x2: x2.toFixed(0), y2: y2.toFixed(0), class: "malla" });
-      l.style.animationDelay = retraso((x1 + x2) / 2, (y1 + y2) / 2);
-      red.append(l);
+      if (Math.hypot(x1 - x2, y1 - y2) < 46) lineas.push([...[x1, y1, x2, y2].map(Math.round), anillo((x1 + x2) / 2, (y1 + y2) / 2)]);
     }
   }
-  for (const [x, y] of puntos) {
-    const c = svg("circle", { cx: x.toFixed(0), cy: y.toFixed(0), r: 1.5, class: "punto" });
-    c.style.animationDelay = retraso(x, y);
-    red.append(c);
-  }
-  return red;
+  const nudos = puntos.map(([x, y]) => [Math.round(x), Math.round(y), anillo(x, y)]);
+  const red = svg("svg", { class: "portada-red", viewBox: "-210 -90 420 180", "aria-hidden": "true" });
+  red.append(svg("path", { class: "malla", d: lineas.map(([x1, y1, x2, y2]) => `M${x1} ${y1}L${x2} ${y2}`).join("") }),
+    svg("path", { class: "punto", d: nudos.map(([x, y]) => `M${x - 1.5} ${y}a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0`).join("") }));
+  const lienzo = el("canvas", { class: "portada-onda", "aria-hidden": "true" });
+  const onda = ondaMalla(lienzo, {
+    lineas, nudos, caja: [-210, -90, 420, 180], anillos: ANILLOS, periodo: 3.2, grosor: .8, radio: 1.5,
+    retraso: (k) => (k + .5) / ANILLOS * LEJOS / 220 * 1.6, // la onda sale del logo
+    linea: [76, 194, 255, .14], lineaLuz: [150, 220, 255, .75], nudo: [191, 234, 255, .4], nudoLuz: [255, 255, 255, 1],
+    // el mismo desvanecido del SVG: una elipse que se apaga del 72 % al borde
+    mascara(ctx, ancho, alto, escala) {
+      ctx.setTransform(escala * ancho / alto, 0, 0, escala, escala * ancho / 2, escala * alto / 2);
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, alto / 2);
+      g.addColorStop(.72, "#000"); g.addColorStop(1, "transparent");
+      ctx.fillStyle = g; ctx.fillRect(-alto / 2, -alto / 2, alto, alto);
+    },
+    seguir: () => lienzo.isConnected && visible(),
+  });
+  return { red, lienzo, onda };
 }
 
 // Piezas para la entrada de la portada: 8 columnas, 3 filas en el espacio (cada una con su pedazo del cielo) y 6 en el cuerpo.
@@ -73,9 +85,11 @@ export function abrirTour(pasos, { alTerminar } = {}) {
   const texto = el("p", { id: "tour-texto" });
   const puntos = el("div", { class: "tour-puntos", "aria-hidden": "true" }, pasos.map(() => el("i")));
   // Portada de bienvenida: el espacio, el logo y el horizonte
+  // la onda corre mientras se ve la portada (se detiene sola al pasar al siguiente paso o al cerrar)
+  const malla = redPortada(() => !cielo.hidden);
   const cielo = el("div", { class: "portada-cielo", "aria-hidden": "true" },
     el("div", { class: "portada-estrellas" }, Array.from({ length: 14 }, () => el("i"))),
-    el("div", { class: "portada-centro" }, redPortada(), el("div", { class: "astro" }, el("div", { class: "logo" }), el("div", { class: "brillo" }))),
+    el("div", { class: "portada-centro" }, malla.red, malla.lienzo, el("div", { class: "astro" }, el("div", { class: "logo" }), el("div", { class: "brillo" }))),
     el("div", { class: "portada-horizonte" }));
   const etiqueta = el("span", { class: "portada-etiqueta" });
   const destacados = el("ul", { class: "portada-lista" });
@@ -172,6 +186,7 @@ export function abrirTour(pasos, { alTerminar } = {}) {
     siguiente.textContent = portada ? "Empezar recorrido" : i === pasos.length - 1 ? "Listo" : "Siguiente";
     saltar.hidden = i === pasos.length - 1;
     colocar();
+    if (portada) malla.onda.iniciar();
     siguiente.focus({ preventScroll: true });
   }
 

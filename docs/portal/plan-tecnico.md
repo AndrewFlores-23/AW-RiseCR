@@ -153,6 +153,31 @@ Plataforma privada en `awrisecr.com/portal` para Andrew (administrador) y sus cl
     - Campos con ícono y un botón de ojo para ver la contraseña (se vuelve a ocultar al cambiar de formulario). Pie con ayuda por WhatsApp y "Conexión cifrada · protegido por Cloudflare".
     - Entrada animada: estrellas, planeta que sube, logo que aparece, tarjeta y pie. Con "reducir movimiento" no se anima.
     - En demo: `?demo=cliente&acceso` abre directo en la entrada.
+  - **Reportes mensuales** (2026-10-07, migración `0016`):
+    - El cliente ve la sección **Reportes** si tiene activo mantenimiento web, SEO, redes o fidelización. Si deja de pagar, conserva los reportes que ya recibió, pero no le llegan nuevos.
+    - Funciona como la Bitácora, con **el más nuevo primero**: una entrada por mes con título, fecha de publicación, servicios que cubre y el PDF para ver o descargar.
+    - Se publica en **panel → cliente → Reportes mensuales**: mes, título (sale solo), el PDF de `herramientas/reportes` y los servicios que cubre.
+      - Los servicios son: Rendimiento web, Posicionamiento SEO, Redes sociales y Tarjetas de fidelidad. Vienen marcados los activos.
+      - Andrew pidió quitar lo opcional (portada, nota y archivo de datos con cifras).
+    - La base de datos solo acepta un reporte nuevo si al menos un servicio marcado está activo (`privado.reporte_con_servicio`). El PDF va en `adjuntos.reporte_id`.
+      - La columna `resumen` queda reservada (vacía).
+    - **Miniatura** de cada reporte: al elegir el PDF, el panel dibuja la portada con PDF.js y la sube como imagen junto al PDF (`miniatura.js`).
+      - La imagen es WebP de 640 × 400, de unos 30 KB (JPEG en Safari, que no exporta WebP).
+      - PDF.js 6.4.299 viene de jsDelivr y solo se carga en el panel. Corre en la misma página porque la política de seguridad no admite workers de otro dominio.
+      - El cliente ve la miniatura al lado de cada reporte (el más nuevo, más grande). Al tocarla se abre el PDF.
+      - Si no se pudo crear al publicar, el reporte sale igual y en la lista del panel aparece **Crear vista previa**.
+      - Las miniaturas de la demo están en `public/portal/demo/`: son portadas de un cliente ficticio.
+    - Correo "Tu reporte de <mes> ya está listo" (función `avisar-avance` con `reporte_id`), con el botón que abre `/portal/#reportes`.
+      - Los avisos de avances ahora abren `/portal/#bitacora`.
+    - Respaldos: la tabla `reportes` entra en el respaldo, en `recuperar` y en `eliminar`.
+  - **Rendimiento** (2026-10-14): el iPhone se ponía lento al abrir el portal. Medido en WebKit (motor de Safari) con pantalla de iPhone, en ms de CPU cada 4 s: cargador 2.090 → ~0, entrada 2.080 → 410, recorrido 2.120 → 325. Mismo diseño.
+    - Regla: las animaciones que se repiten solo cambian `transform` u `opacity`, que el navegador mueve sin repintar. Animar el color de un trazo, un filtro (`drop-shadow`) o `background-position` obliga a repintar en cada cuadro.
+    - Malla (entrada y portada del recorrido): un SVG quieto de dos trazos. La onda de luz la dibuja `onda.js` en un lienzo encima, solo con los anillos encendidos, a 24 cuadros por segundo y con 2x de resolución como máximo. Se detiene sola cuando la malla deja de verse.
+    - Logo: el latido del resplandor es una copia con el brillo fuerte que cambia de opacidad, y la franja de luz se desliza con `transform` dentro de la máscara del logo. En el cargador, el flotar va en cada capa y no en `.astro`: si no, Chrome recalculaba los estilos de toda la pantalla en cada cuadro.
+    - Planeta de la entrada: sube una franja que recorta el círculo, no el círculo entero (2,6 veces el ancho de la pantalla).
+    - Dock del celular sin `backdrop-filter`.
+    - Carga: logo en WebP de 40 KB (`/portal/logo-aw.webp`; el PNG pesaba 120 KB). `index.html` pide de una vez las fuentes, el logo y los módulos, también los de Supabase (con prioridad baja; si cambia la versión en `config.js`, cambiarla ahí también). Al entrar con sesión, el perfil se pide mientras se valida la sesión, y el negocio y los reportes van juntos.
+    - Caché (`_headers`): la página sigue con `no-store`. JS, CSS y WebP con `no-cache` (se revalidan y no se vuelven a descargar si no cambiaron). Las fuentes se guardan un año, así que una fuente nueva va con otro nombre de archivo. Segunda visita con 4G lenta: 1,9 s → 0,6 s hasta ver la entrada.
 - Pendiente antes de los clientes reales:
   - ~~Cambiar la Site URL de Supabase~~: hecho el 2026-10-06 (`https://awrisecr.com/portal/`).
   - ~~Borrar el cliente de prueba y su usuario~~: hecho el 2026-10-07 (quedó limpio, solo el administrador).

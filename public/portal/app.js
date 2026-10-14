@@ -1,7 +1,7 @@
 // Portal AW-RiseCR · acceso, menú de carpetas, Inicio y Bitácora (el panel del administrador vive en admin.js)
 import { SUPABASE_URL, SUPABASE_KEY, SUPABASE_JS, CONTACTO, TURNSTILE_SITEKEY } from "/portal/config.js";
-import { $, el, icono, fecha, fechaCorta, hora, dinero, fLarga, estadoCobro, cargador, ETAPAS, TIPOS, ESTADO_COBRO } from "/portal/util.js";
-import { iniciarCliente, vistaPagos, vistaFondo, vistaDocumentos, vistaAccesos } from "/portal/cliente.js";
+import { $, el, icono, fecha, fechaCorta, hora, dinero, fLarga, estadoCobro, cargador, ETAPAS, TIPOS, ESTADO_COBRO, TIPOS_REPORTE } from "/portal/util.js";
+import { iniciarCliente, vistaPagos, vistaFondo, vistaDocumentos, vistaAccesos, vistaReportes } from "/portal/cliente.js";
 import { abrirTour } from "/portal/tour.js";
 import { configurarCaptcha, crearCaptcha } from "/portal/captcha.js";
 import { armarFondoAcceso } from "/portal/acceso-fondo.js";
@@ -10,6 +10,8 @@ import { armarFondoAcceso } from "/portal/acceso-fondo.js";
 const hashInicial = new URLSearchParams(location.hash.slice(1));
 const tipoEnlace = hashInicial.get("type");
 const errorEnlace = hashInicial.get("error_description");
+// Enlaces de los correos: /portal/#reportes abre directo esa sección
+const seccionDelEnlace = ["reportes", "bitacora", "pagos", "documentos"].find((s) => hashInicial.has(s));
 
 // Modo demo: solo en la computadora de desarrollo, con ?demo o ?demo=cliente
 const parametros = new URLSearchParams(location.search);
@@ -149,6 +151,22 @@ const datosReales = {
     const { error } = await sb.rpc("marcar_tour_visto");
     if (error) throw error;
   },
+  // Reportes mensuales, del más nuevo al más viejo
+  async reportes(negocioId) {
+    const { data, error } = await sb.from("reportes").select("id, tipos, periodo, titulo, creado_en, adjuntos(id, ruta, nombre, tipo_mime, tamano)")
+      .eq("negocio_id", negocioId).order("periodo", { ascending: false }).order("creado_en", { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+  // La sección se ve si tiene un servicio mensual con reporte activo o si ya recibió reportes antes
+  async conReportes(negocioId) {
+    const [servicios, reportes] = await Promise.all([
+      sb.from("servicios").select("id", { count: "exact", head: true }).eq("negocio_id", negocioId).eq("estado", "activo").in("tipo", Object.keys(TIPOS_REPORTE)),
+      sb.from("reportes").select("id", { count: "exact", head: true }).eq("negocio_id", negocioId),
+    ]);
+    if (servicios.error || reportes.error) throw servicios.error || reportes.error;
+    return servicios.count > 0 || reportes.count > 0;
+  },
   async cuenta() {
     const { data, error } = await sb.auth.getUser();
     if (error) throw error;
@@ -246,9 +264,11 @@ const datosDemo = {
       { id: "d0", tipo: "propuesta", titulo: "Propuesta firmada", contenido: null, proyecto_id: "p-1", creado_en: hace(16, 15, 0), adjuntos: [{ id: "a9", ruta: "demo/propuesta.pdf", nombre: "propuesta.pdf", tipo_mime: "application/pdf" }] },
     ];
   },
-  async urls(rutas) { return Object.fromEntries(rutas.map((r) => [r, "/project-preview-odrys-mobile-v5.jpg"])); },
+  async urls(rutas) { return Object.fromEntries(rutas.map((r) => [r, r.endsWith(".webp") ? "/portal/" + r : "/project-preview-odrys-mobile-v5.jpg"])); },
   async aprobar() {},
   async marcarTour() {},
+  async reportes(id) { return id === "demo-2" ? [] : REPORTES_DEMO; },
+  async conReportes(id) { return id !== "demo-2"; },
   async cuenta() { return { email: parametros.get("demo") === "cliente" ? "mariana@surfcoffee.cr" : CONTACTO.correo, last_sign_in_at: hace(0, 8, 15) }; },
   // En demo, la contraseña actual "incorrecta" muestra el error; cualquier otra simula el cambio
   async cambiarClave(actual, nueva, cerrar, captchaToken) {
@@ -258,6 +278,16 @@ const datosDemo = {
   },
   async enlaceClave() { await esperar(400); },
 };
+
+// Reportes de ejemplo (del más nuevo al más viejo) para revisar el diseño
+const REPORTES_DEMO = [
+  { id: "r2", tipos: ["mantenimiento", "redes"], periodo: "2026-09-01", titulo: "Reporte de septiembre", creado_en: "2026-10-07T15:00:00Z",
+    adjuntos: [{ id: "x2", ruta: "demo/reporte-septiembre.pdf", nombre: "Reporte-septiembre-2026.pdf", tipo_mime: "application/pdf", tamano: 2400000 },
+      { id: "x2v", ruta: "demo/reporte-septiembre.webp", nombre: "Vista previa.webp", tipo_mime: "image/webp", tamano: 30000 }] },
+  { id: "r1", tipos: ["mantenimiento", "redes"], periodo: "2026-08-01", titulo: "Reporte de agosto", creado_en: "2026-09-06T15:00:00Z",
+    adjuntos: [{ id: "x1", ruta: "demo/reporte-agosto.pdf", nombre: "Reporte-agosto-2026.pdf", tipo_mime: "application/pdf", tamano: 2100000 },
+      { id: "x1v", ruta: "demo/reporte-agosto.webp", nombre: "Vista previa.webp", tipo_mime: "image/webp", tamano: 30000 }] },
+];
 
 const datos = DEMO ? datosDemo : datosReales;
 
@@ -478,13 +508,18 @@ async function salir() {
 
 async function entrarAlPortal() {
   mostrar("carga");
-  let uid = "demo";
+  let uid = "demo", pidiendoPerfil = null;
   if (!DEMO) {
+    // El perfil se pide con el id de la sesión guardada mientras Supabase confirma que la sesión sigue válida: una espera
+    // en vez de dos. Si la sesión no vale, no se usa (y la base de datos tampoco lo habría entregado).
+    const guardada = (await sb.auth.getSession()).data?.session?.user?.id;
+    if (guardada) { pidiendoPerfil = datos.perfil(guardada); pidiendoPerfil.catch(() => {}); }
     const { data } = await sb.auth.getUser();
     if (!data?.user) { mostrar("acceso"); mostrarForm("form-entrar"); return; }
     uid = data.user.id;
+    if (uid !== guardada) pidiendoPerfil = null;
   }
-  const perfil = await datos.perfil(uid);
+  const perfil = await (pidiendoPerfil || datos.perfil(uid));
   if (!perfil || !perfil.activo) {
     if (!DEMO) await sb.auth.signOut();
     mostrar("acceso"); mostrarForm("form-entrar");
@@ -497,11 +532,18 @@ async function entrarAlPortal() {
   estado.negocioVista = perfil.rol === "admin" ? null : perfil.negocio_id;
   $("#pie-nombre").textContent = perfil.nombre || "Mi cuenta";
   $("#marca-sub").textContent = perfil.rol === "admin" ? "Panel interno" : "Portal cliente";
-  if (perfil.negocio_id) {
-    const n = await datos.negocio(perfil.negocio_id).catch(() => null);
-    $("#pie-negocio").textContent = n?.nombre || "";
-  }
+  // El nombre del negocio y si tiene reportes se piden juntos
+  const [negocio, conReportes] = await Promise.all([
+    perfil.negocio_id ? datos.negocio(perfil.negocio_id).catch(() => null) : null,
+    perfil.rol === "admin" || (perfil.negocio_id ? datos.conReportes(perfil.negocio_id).catch(() => false) : false),
+  ]);
+  if (perfil.negocio_id) $("#pie-negocio").textContent = negocio?.nombre || "";
   for (const b of document.querySelectorAll("[data-ayuda]")) b.hidden = perfil.rol !== "cliente";
+  estado.conReportes = conReportes;
+  if (seccionDelEnlace && perfil.rol === "cliente" && (seccionDelEnlace !== "reportes" || estado.conReportes)) {
+    estado.seccion = seccionDelEnlace;
+    history.replaceState(null, "", location.pathname);
+  }
   mostrar("app");
   pintarMenu();
   await pintarVista();
@@ -522,13 +564,14 @@ function pasosRecorrido() {
       pie: "Te muestro dónde está cada cosa en menos de un minuto." },
     { objetivo: menu("inicio"), titulo: "Inicio", texto: "Tu resumen: cómo va cada proyecto, el último avance, tu próximo pago y tu Fondo AW." },
     { objetivo: menu("bitacora"), titulo: "Bitácora", texto: "Cada avance de tu proyecto con fecha y hora, del más reciente al primero. Si algo necesita tu visto bueno, aquí aparece el botón Aprobar." },
+    estado.conReportes ? { objetivo: menu("reportes"), titulo: "Reportes", texto: "Cada mes, cómo le va a tu web, a tu presencia en Google y a tus redes, con el reporte completo en PDF." } : null,
     { objetivo: menu("pagos"), titulo: "Pagos", texto: "Lo que falta por pagar, tus mensualidades y el historial. Aquí están los datos para pagar por SINPE Móvil o transferencia." },
     { objetivo: menu("fondo"), titulo: "Fondo AW", texto: "Tu crédito por recomendarnos, para tus próximos desarrollos. Desde aquí puedes recomendarnos por WhatsApp." },
     { objetivo: menu("documentos"), titulo: "Documentos", texto: "Tu documento de bienvenida, propuestas, acuerdos y comprobantes, listos para abrir o descargar." },
     { objetivo: menu("accesos"), titulo: "Accesos", texto: "Tu dominio, hosting y cuentas, con sus fechas de renovación. Las contraseñas no se guardan aquí: te las enviamos con un enlace seguro." },
     { objetivo: menu("cuenta"), titulo: "Mi cuenta", texto: "Tus datos de acceso al portal. Aquí puedes cambiar tu contraseña cuando quieras." },
     { objetivo: "[data-ayuda]", titulo: "¿Dudas?", texto: "Puedes volver a ver este recorrido aquí cuando quieras. Y cada avance nuevo también te llega por correo." },
-  ];
+  ].filter(Boolean);
 }
 
 function iniciarRecorrido() {
@@ -623,9 +666,9 @@ async function vistaCuenta() {
 // ---------- Menú de carpetas ----------
 function secciones() {
   const cliente = [
-    ["inicio", "Inicio"], ["bitacora", "Bitácora"], ["pagos", "Pagos"], ["fondo", "Fondo AW"],
+    ["inicio", "Inicio"], ["bitacora", "Bitácora"], estado.conReportes ? ["reportes", "Reportes"] : null, ["pagos", "Pagos"], ["fondo", "Fondo AW"],
     ["documentos", "Documentos"], ["accesos", "Accesos"],
-  ];
+  ].filter(Boolean);
   const cuenta = ["cuenta", "Mi cuenta"];
   return estado.perfil.rol === "admin" ? [["panel", "Clientes"], ["cobros", "Cobros"], ["publicar", "Publicar"], cuenta, ...cliente] : [...cliente, cuenta];
 }
@@ -665,6 +708,7 @@ async function armarVista() {
   if (estado.seccion === "pagos") return vistaPagos();
   if (estado.seccion === "fondo") return vistaFondo();
   if (estado.seccion === "documentos") return vistaDocumentos();
+  if (estado.seccion === "reportes") return vistaReportes();
   if (estado.seccion === "accesos") return vistaAccesos();
   return vistaPronto();
 }
